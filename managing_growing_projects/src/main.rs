@@ -1,5 +1,5 @@
-mod restaurant;
+extern crate managing_growing_projects;
 fn main() {
     println!("Hello World");
-    restaurant::eat_at_restaurant();
+    managing_growing_projects::eat_at_restaurant();
 }

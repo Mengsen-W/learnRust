@@ -3,3 +3,10 @@
 [[package]]
 name = "hello_cargo"
 version = "0.1.0"
+dependencies = [
+ "managing_growing_projects",
+]
+
+[[package]]
+name = "managing_growing_projects"
+version = "0.1.0"
