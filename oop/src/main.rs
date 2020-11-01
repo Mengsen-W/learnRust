@@ -1,5 +1,5 @@
 mod gui;
-use gui::{Screen, Button, SelectBox};
+use gui::{Button, Screen, SelectBox};
 mod blog;
 mod blog2;
 
@@ -25,7 +25,6 @@ fn test_blog() {
 }
 
 fn test_blog2() {
-
     let mut post = blog2::Post::new();
 
     post.add_text("I ate a salad for lunch today");
@@ -47,7 +46,7 @@ fn test_gui() {
                 options: vec![
                     String::from("Yes"),
                     String::from("Maybe"),
-                    String::from("No")
+                    String::from("No"),
                 ],
             }),
             Box::new(Button {

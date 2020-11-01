@@ -12,7 +12,7 @@ impl Post {
     }
 
     pub fn add_text(&mut self, text: &str) {
-            self.content.push_str(text);
+        self.content.push_str(text);
     }
 
     pub fn request_review(&mut self) {
@@ -29,9 +29,7 @@ impl Post {
     }
     pub fn content(&self) -> &str {
         self.state.as_ref().unwrap().content(self)
-
     }
-
 }
 
 trait State {
@@ -56,7 +54,6 @@ impl State for Draft {
         self
     }
 }
-
 
 struct PendingReview {}
 
@@ -87,5 +84,4 @@ impl State for Published {
     fn content<'a>(&self, post: &'a Post) -> &'a str {
         &post.content
     }
-
 }

@@ -4,6 +4,6 @@
 
 struct Block {
     data: String,
-    previousHash: String,
-    hash: String,
+    previousHash: u64,
+    hash: u64,
 }
