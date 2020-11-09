@@ -16,6 +16,20 @@ fn main() {
     let result = two_times_impl();
     assert_eq!(result(2), 4);
     assert_eq!(while_true(5), 6);
+    bind_mode();
+    integer_limit();
+    range_type();
+    array_slice_type();
+    string_type();
+    raw_pointer();
+    never_type_test();
+    new_type_mode();
+    unit_struct_type();
+    enum_type();
+    data_struct();
+    multi_struct_single_trait();
+    error_handle();
+    smart_pointer();
 }
 
 fn no_return_value() -> () {
@@ -74,6 +88,7 @@ fn two_times_impl() -> impl Fn(i32) -> i32 {
     move |j| j * i
 }
 
+#[allow(while_true)]
 fn while_true(x: i32) -> i32 {
     // flow sensitive analysis do not check condition of while
     // poop
@@ -146,7 +161,7 @@ fn string_type() {
     assert_eq!(17, len);
     let s = unsafe {
         let slice = std::slice::from_raw_parts(ptr, len);
-        std::str::from_utf8(slice);
+        std::str::from_utf8(slice)
     };
     assert_eq!(s, Ok(truth));
 }
@@ -162,8 +177,8 @@ fn raw_pointer() {
     assert_eq!(x, 30);
 }
 
-#![feature(never_type)]
-fn never_type() -> i32{
+// #![feature(never_type)]
+fn never_type_test() -> i32 {
     // never type convert any type
     let num: Option<u32> = Some(42);
     match num {
@@ -171,12 +186,12 @@ fn never_type() -> i32{
         None => panic!("Nothing"),
     };
 
-    let x: ! = {
-        return 123
-    };
+    // do not work
+    // let x: ! = { return 123 };
+    1
 }
 
-fn new_type_mode(){
+fn new_type_mode() {
     struct Integer(u32);
     type Int = i32;
     let int = Integer(10);
@@ -185,7 +200,7 @@ fn new_type_mode(){
     assert_eq!(int, 10);
 }
 
-fn unit_strcut_type(){
+fn unit_struct_type() {
     // debug mode difference address
     // release mode same address
     // this mean all of Empty is the one in release mode
@@ -199,14 +214,16 @@ fn unit_strcut_type(){
     assert_eq!((..), std::ops::RangeFull);
 }
 
-fn enum_type(){
+fn enum_type() {
     enum Number {
         Zero,
         One,
         Two,
     }
-    let a = Number::One;
-    match a {
+    let _a = Number::One;
+    let _a = Number::Zero;
+    let _a = Number::Two;
+    match _a {
         Number::Zero => println!("0"),
         Number::One => println!("1"),
         Number::Two => println!("2"),
@@ -218,16 +235,18 @@ fn enum_type(){
         Blue = 3,
     }
     println!("color number = {}", Color::Red as i32);
+    println!("color number = {}", Color::Green as i32);
+    println!("color number = {}", Color::Blue as i32);
 
     enum IpAddr {
         V4(u8, u8, u8, u8),
         V6(String),
     };
 
-    let x: fn(u8, u8, u8, u8) -> IpAddr = IpAddr::V4;
-    let y: fn(String) -> IpAddr = IpAddr::V6;
+    let _x: fn(u8, u8, u8, u8) -> IpAddr = IpAddr::V4;
+    let _y: fn(String) -> IpAddr = IpAddr::V6;
 
-    let home = IpAddr::V4(127, 0, 0, 1);
+    let _home = IpAddr::V4(127, 0, 0, 1);
 }
 
 fn data_struct() {
@@ -237,7 +256,7 @@ fn data_struct() {
     v1.push(3);
     assert_eq!(v1, [1, 2, 3]);
     assert_eq!(v1[1], 2);
-    let mut v2 = vec![0; 10];
+    let _v2 = vec![0; 10];
     let mut v3 = Vec::new();
     v3.push(4);
     v3.push(5);
@@ -303,7 +322,7 @@ fn data_struct() {
     println!("{:?}", heap);
 }
 
-fn multi_struct_single_trait(){
+fn multi_struct_single_trait() {
     struct Duck;
     struct Pig;
     trait Fly {
@@ -314,40 +333,52 @@ fn multi_struct_single_trait(){
     }
 
     impl Fly for Duck {
-        fn fly(&self) -> bool {return true;}
+        fn fly(&self) -> bool {
+            return true;
+        }
     }
-    impl Fly for Pig{
-        fn fly(&self) -> bool {return false;}
+    impl Fly for Pig {
+        fn fly(&self) -> bool {
+            return false;
+        }
     }
 
     fn fly_static<T: Fly>(s: T) -> bool {
         s.fly()
     }
-    fn fly_dyn(s: &Fly) -> bool {
+    fn fly_dyn(s: &dyn Fly) -> bool {
         s.fly()
     }
 
-     let pig = Pig;
-    assert_eq!(fly_static::<Pig>(pig ), false );
+    let pig = Pig;
+    assert_eq!(fly_static::<Pig>(pig), false);
     let duck = Duck;
-    assert_eq!(fly_static::<Duck>(duck), true) ;
-    assert_eq!(fly_dyn ( &Pig ), false);
-    assert_eq ! (fly_dyn(&Duck) , true);
- }
+    assert_eq!(fly_static::<Duck>(duck), true);
+    assert_eq!(fly_dyn(&Pig), false);
+    assert_eq!(fly_dyn(&Duck), true);
+}
 
- fn error_handle(){
-    let x : Result<i32 , &str> = Ok(3);
-    assert_eq!(x.is_ok() , true);
-    let x : Result<i32 , &str> = Err ("Some error message");
-    assert_eq!(x.is_ok (), false);
- }
+fn error_handle() {
+    let x: Result<i32, &str> = Ok(3);
+    assert_eq!(x.is_ok(), true);
+    let x: Result<i32, &str> = Err("Some error message");
+    assert_eq!(x.is_ok(), false);
+}
 
-fn smart_pointer(){
+fn smart_pointer() {
+    #[derive(Debug)]
     struct Point {
-        x: f64 ,
-        y: f64 ,
+        x: f64,
+        y: f64,
     }
-    let boxed_point =Box::new(Point { x: 0.0, y: 0.0});
-    let unboxed_point: Point = *boxed_point ;
-    assert_eq!(unboxed_point , Point { x: 0.0, y: 0.0});
+
+    impl PartialEq for Point {
+        fn eq(&self, other: &Self) -> bool {
+            (self.x == other.x) && (self.y == other.y)
+        }
+    }
+
+    let boxed_point = Box::new(Point { x: 0.0, y: 0.0 });
+    let unboxed_point: Point = *boxed_point;
+    assert_eq!(unboxed_point, Point { x: 0.0, y: 0.0 });
 }
