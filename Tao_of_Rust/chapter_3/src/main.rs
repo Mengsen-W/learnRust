@@ -26,6 +26,10 @@ fn main() {
     {
         generic_type();
     }
+
+    {
+        interface_abstract();
+    }
 }
 
 fn fat_pointer() {
@@ -137,15 +141,15 @@ fn interface_abstract() {
     {
         // RHS mean right side of '+'
         // Output mean left side of '='
-        trait Add_My<RHS, Output> {
+        trait AddMy<RHS, Output> {
             fn my_add(self, rhs: RHS) -> Output;
         }
-        impl Add_My<i32, i32> for i32 {
+        impl AddMy<i32, i32> for i32 {
             fn my_add(self, rhs: i32) -> i32 {
                 self + rhs
             }
         }
-        impl Add_My<u32, i32> for u32 {
+        impl AddMy<u32, i32> for u32 {
             fn my_add(self, rhs: u32) -> i32 {
                 (self + rhs) as i32
             }
@@ -160,19 +164,19 @@ fn interface_abstract() {
     {
         // just one generic parameter
         // RHS default is Self
-        trait Add_Std<RHS = Self> {
+        trait AddStd<RHS = Self> {
             type Output;
             fn my_add_std(self, rhs: RHS) -> Self::Output;
         }
         // use default RHS
-        impl Add_Std for u32 {
+        impl AddStd for u32 {
             type Output = u32;
             fn my_add_std(self, other: u32) -> u32 {
                 self + other
             }
         }
         // use set RHS
-        impl Add_Std<&str> for String {
+        impl AddStd<&str> for String {
             type Output = String;
             fn my_add_std(mut self, other: &str) -> String {
                 self.push_str(other);
@@ -222,12 +226,12 @@ fn interface_abstract() {
 
     {
         trait Page {
-            fn set_page(&self, p: i32) {
+            fn set_page(&self, _p: i32) {
                 println!("Page Default: 1");
             }
         }
         trait PerPage {
-            fn set_perpage(&self, num: i32) {
+            fn set_perpage(&self, _num: i32) {
                 println!("Page Default: 10");
             }
         }
@@ -238,7 +242,7 @@ fn interface_abstract() {
             }
         }
         struct MyPaginate {
-            page: i32,
+            _page: i32,
         }
         // default implementation
         impl Page for MyPaginate {}
@@ -247,7 +251,7 @@ fn interface_abstract() {
         // that have Page and PerPage behavior.
         impl<T: Page + PerPage> Paginate for T {}
 
-        let my_paginate = MyPaginate { page: 1 };
+        let my_paginate = MyPaginate { _page: 1 };
         my_paginate.set_page(1);
         my_paginate.set_perpage(100);
         my_paginate.set_skip_page(12);
