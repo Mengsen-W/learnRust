@@ -22,7 +22,6 @@ fn main() {
     array_slice_type();
     string_type();
     raw_pointer();
-    never_type_test();
     new_type_mode();
     unit_struct_type();
     enum_type();
@@ -30,6 +29,7 @@ fn main() {
     multi_struct_single_trait();
     error_handle();
     smart_pointer();
+    never_type_test();
 }
 
 fn no_return_value() -> () {
@@ -177,18 +177,15 @@ fn raw_pointer() {
     assert_eq!(x, 30);
 }
 
-// #![feature(never_type)]
-fn never_type_test() -> i32 {
+fn never_type_test() -> ! {
     // never type convert any type
+    println!("never end and return looping start");
     let num: Option<u32> = Some(42);
     match num {
         Some(num) => num,
         None => panic!("Nothing"),
     };
-
-    // do not work
-    // let x: ! = { return 123 };
-    1
+    loop {}
 }
 
 fn new_type_mode() {
