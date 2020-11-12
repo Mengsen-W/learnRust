@@ -12,8 +12,20 @@ fn main() {
     {
         test_const_and_static();
     }
+
+    {
+        // let a = 2;
+        // let array: [i32; a] = [5; return_num(2) as usize];
+        // non-constant value
+        let array: [i32; return_num(2) as usize] = [5; return_num(2) as usize];
+        println!("{:?}", array)
+    }
 }
 
 fn test_const_and_static() {
     assert_eq!(MAX_NUM, MIN_NUM);
+}
+
+const fn return_num(num: i32) -> i32 {
+    return num;
 }
