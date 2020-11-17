@@ -19,6 +19,12 @@ fn main() {
     let mut o = 5;
     assert_eq!(brrow_check(&i, &mut o), 2);
   }
+  {
+    assert_eq!("hello", the_longest("hello", "rust"));
+  }
+  {
+    struct_life_time();
+  }
 }
 
 #[allow(unused_variables)]
@@ -106,5 +112,28 @@ fn the_longest<'a, 'b: 'a>(s1: &'a str, s2: &'b str) -> &'a str {
     s1
   } else {
     s2
+  }
+}
+
+fn struct_life_time() {
+  // struct shorter than or equal member lifetime
+  struct Foo<'a> {
+    part: &'a str,
+  }
+
+  let word = String::from("Sometimes think, the greatest sorrow than older");
+  let first = word.split(',').next().expect("Could not find a ','");
+  let f = Foo { part: first };
+  assert_eq!("Sometimes think", f.part);
+
+  impl<'a> Foo<'a> {
+    fn split_first(s: &'a str) -> &'a str {
+      s.split(',').next().expect("Could not find a ','")
+    }
+    fn new(s: &'a str) -> Self {
+      Foo {
+        part: Foo::split_first(s),
+      }
+    }
   }
 }
