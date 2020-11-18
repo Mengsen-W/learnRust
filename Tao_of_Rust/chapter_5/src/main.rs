@@ -17,13 +17,16 @@ fn main() {
   {
     let i = 20;
     let mut o = 5;
-    assert_eq!(brrow_check(&i, &mut o), 2);
+    brrow_check(&i, &mut o);
   }
   {
     assert_eq!("hello", the_longest("hello", "rust"));
   }
   {
     struct_life_time();
+  }
+  {
+    life_limit();
   }
 }
 
@@ -135,5 +138,58 @@ fn struct_life_time() {
         part: Foo::split_first(s),
       }
     }
+    // self is a object
+    // Self is type for self
+    fn get_part(&self) -> &str {
+      self.part
+    }
+  }
+
+  let words = String::from("Somethimes think, the greatest sorrow than older");
+  let foo = Foo::new(words.as_str());
+  println!("{:?}", foo.get_part());
+}
+
+fn life_limit() {
+  use std::fmt::Debug;
+  #[derive(Debug)]
+  struct Ref<'a, T: 'a>(&'a T);
+  // T type ref life time == 'a
+
+  fn print<T>(t: T)
+  where
+    T: Debug,
+  {
+    println!("'print': t is {:?}", t);
+  }
+
+  fn print_ref<'a, T>(t: &'a T)
+  where
+    T: Debug + 'a,
+  {
+    println!("'print_ref': t is {:?}", t);
+  }
+
+  let x = 7;
+  let ref_x = Ref(&x);
+  print_ref(&ref_x);
+  print(ref_x);
+
+  trait Foo {};
+  struct Bar<'a> {
+    _x: &'a i32,
+  }
+  impl<'a> Foo for Bar<'a> {}
+  let num = 5;
+  let box_bar = Box::new(Bar { _x: &num });
+  let _obj = box_bar as Box<dyn Foo>;
+
+  trait _Foo<'a> {}
+  struct _FooImpl<'a> {
+    s: &'a [u32],
+  }
+  impl<'a> _Foo<'a> for _FooImpl<'a> {}
+  fn _foo<'a>(s: &'a [u32]) -> Box<dyn _Foo<'a> + 'a> {
+    Box::new(_FooImpl { s: s })
   }
 }
