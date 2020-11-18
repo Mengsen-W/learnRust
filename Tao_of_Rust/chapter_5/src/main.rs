@@ -26,6 +26,9 @@ fn main() {
     struct_life_time();
   }
   {
+    assert_eq!("hello", life_time_note("hello", "rust"));
+  }
+  {
     life_limit();
   }
 }
