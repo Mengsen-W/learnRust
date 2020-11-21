@@ -31,6 +31,9 @@ fn main() {
   {
     closure();
   }
+  {
+    return_closure();
+  }
 }
 
 fn r#match(needle: &str, haystack: &str) -> bool {
@@ -208,4 +211,85 @@ fn parameter_bind() {
   f(&s);
   f_ref(s);
   foo(3);
+}
+
+fn return_closure() {
+  {
+    fn boxed_closure(c: &mut Vec<Box<dyn Fn()>>) {
+      let s = "second";
+      c.push(Box::new(|| println!("first")));
+      c.push(Box::new(move || println!("{}", s)));
+      c.push(Box::new(|| println!("third")));
+    }
+    let mut c: Vec<Box<dyn Fn()>> = vec![];
+    boxed_closure(&mut c);
+    for f in c {
+      f();
+    }
+  }
+  {
+    trait Any {
+      fn any<F>(&self, f: F) -> bool
+      where
+        Self: Sized,
+        F: Fn(u32) -> bool;
+    }
+    impl Any for Vec<u32> {
+      fn any<F>(&self, f: F) -> bool
+      where
+        Self: Sized,
+        F: Fn(u32) -> bool,
+      {
+        for &x in self {
+          if f(x) {
+            return true;
+          }
+        }
+        false
+      }
+    }
+    let v = vec![1, 2, 3];
+    let b = v.any(|x| x == 3);
+    println!("{:?}", b);
+  }
+  {
+    trait Any {
+      fn any(&self, f: &(dyn Fn(u32) -> bool)) -> bool;
+    }
+    impl Any for Vec<u32> {
+      fn any(&self, f: &(dyn Fn(u32) -> bool)) -> bool {
+        for &x in self {
+          if f(x) {
+            return true;
+          }
+        }
+        false
+      }
+    }
+    let v = vec![1, 2, 3];
+    let b = v.any(&|x| x == 3);
+    println!("{:?}", b);
+  }
+  {
+    fn call<F>(closure: F) -> i32
+    where
+      F: Fn(i32) -> i32,
+    {
+      closure(1)
+    }
+    fn counter(i: i32) -> i32 {
+      i + 1
+    }
+    let result = call(counter);
+    assert_eq!(2, result);
+  }
+  {
+    fn square() -> Box<dyn Fn(i32) -> i32> {
+      Box::new(|i| i * i)
+    }
+    let square = square();
+    assert_eq!(4, square(2));
+    assert_eq!(9, square(3));
+  }
+  {}
 }
