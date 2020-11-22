@@ -34,6 +34,9 @@ fn main() {
   {
     return_closure();
   }
+  {
+    advance_life_time();
+  }
 }
 
 fn r#match(needle: &str, haystack: &str) -> bool {
@@ -291,5 +294,60 @@ fn return_closure() {
     assert_eq!(4, square(2));
     assert_eq!(9, square(3));
   }
-  {}
+  {
+    fn square() -> impl FnOnce(i32) -> i32 {
+      |i| i * i
+    }
+    let square = square();
+    assert_eq!(4, square(2));
+  }
+}
+
+fn advance_life_time() {
+  {
+    use std::fmt::Debug;
+    trait DoSomething<T> {
+      fn do_sth(&self, value: T);
+    }
+
+    impl<'a, T: Debug> DoSomething<T> for &'a usize {
+      fn do_sth(&self, value: T) {
+        println!("{:?}", value);
+      }
+    }
+
+    fn foo(b: Box<dyn for<'f> DoSomething<&'f usize>>) {
+      let s: usize = 10;
+      // s must longer than foo(x)
+      b.do_sth(&s);
+    }
+    let x = Box::new(&2usize);
+    foo(x);
+  }
+  {
+    struct Pick<F> {
+      data: (u32, u32),
+      func: F,
+    }
+    impl<F> Pick<F>
+    where
+      F: Fn(&(u32, u32)) -> &u32,
+    {
+      fn call(&self) -> &u32 {
+        (self.func)(&self.data)
+      }
+    }
+    fn max(data: &(u32, u32)) -> &u32 {
+      if data.0 > data.1 {
+        &data.0
+      } else {
+        &data.1
+      }
+    }
+    let elm = Pick {
+      data: (3, 1),
+      func: max,
+    };
+    println!("{}", elm.call());
+  }
 }
