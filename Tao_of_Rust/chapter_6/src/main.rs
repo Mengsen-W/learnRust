@@ -351,3 +351,77 @@ fn advance_life_time() {
     println!("{}", elm.call());
   }
 }
+
+fn iterator() {
+  {
+    // internal iterator
+    trait InIterator<T: Copy> {
+      fn each<F: Fn(T) -> T>(&mut self, f: F);
+    }
+    impl<T: Copy> InIterator<T> for Vec<T> {
+      fn each<F: Fn(T) -> T>(&mut self, f: F) {
+        let mut i = 0;
+        while i < self.len() {
+          self[i] = f(self[i]);
+          i += 1;
+        }
+      }
+    }
+
+    let mut v = vec![1, 2, 3];
+    v.each(|i| i * 3);
+    assert_eq!([3, 6, 9], v[..]);
+  }
+  {
+    let v = vec![1, 2, 3];
+    for i in v {
+      println!("{:?}", i);
+    }
+  }
+  {
+    let v = vec![1, 2, 3];
+    let mut _it = v.into_iter();
+    loop {
+      match _it.next() {
+        Some(i) => {
+          println!("{}", i);
+        }
+        None => break,
+      }
+    }
+  }
+  {
+    trait Iterator {
+      type Item;
+      fn next(&mut self) -> Option<Self::Item>;
+    }
+
+    struct Counter {
+      count: usize,
+    }
+    impl Iterator for Counter {
+      type Item = usize;
+      fn next(&mut self) -> Option<usize> {
+        self.count += 1;
+        if self.count < 3 {
+          Some(self.count)
+        } else {
+          None
+        }
+      }
+    }
+    let mut counter = Counter { count: 0 };
+    assert_eq!(Some(1), counter.next());
+    assert_eq!(Some(2), counter.next());
+    assert_eq!(Some(3), counter.next());
+    assert_eq!(None, counter.next());
+  }
+  {
+    let a: [i32; 3] = [1, 2, 3];
+    let mut iter = a.iter();
+    assert_eq!((3, Some(3)), iter.size_hint());
+    iter.next();
+    assert_eq!((2, Some(2)), iter.size_hint());
+  }
+  {}
+}
