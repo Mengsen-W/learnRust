@@ -423,5 +423,49 @@ fn iterator() {
     iter.next();
     assert_eq!((2, Some(2)), iter.size_hint());
   }
-  {}
+  {
+    let arr1 = [1, 2, 3, 4, 5];
+    let c1 = arr1.iter().map(|x| x * 2).collect::<Vec<i32>>();
+    assert_eq!(&c1[..], [2, 4, 6, 8, 10]);
+    let arr2 = ["1", "2", "3", "h"];
+    let c2 = arr2
+      .iter()
+      .filter_map(|x| x.parse().ok())
+      .collect::<Vec<i32>>();
+    assert_eq!(&c2[..], [1, 2, 3]);
+    let arr3 = ['a', 'b', 'c'];
+    for (idx, val) in arr3.iter().enumerate() {
+      println!("idx: {:?}, val: {:?}", idx, val.to_uppercase());
+    }
+
+    let a = [1, 2, 3];
+    let mut iter = a.iter().rev();
+    assert_eq!(iter.next(), Some(&3));
+    assert_eq!(iter.next(), Some(&2));
+    assert_eq!(iter.next(), Some(&1));
+
+    let nums = vec![1, 2, 3];
+    let mut iter = nums.into_iter();
+    assert_eq!(Some(1), iter.next());
+    assert_eq!(Some(3), iter.next_back());
+    assert_eq!(Some(2), iter.next_back());
+    assert_eq!(None, iter.next());
+  }
+  {
+    let a = [1, 2, 3];
+    assert_eq!(a.iter().any(|&x| x != 2), true);
+    assert_eq!(a.iter().any(|x| *x != 2), true);
+    let sum = a.iter().fold(0, |acc, x| acc + x);
+    assert_eq!(sum, 6);
+
+    let arr = vec![1, 2, 3];
+    let suml = arr.iter().fold(0, |acc, x| acc + x);
+    let sum2 = arr.iter().fold(0, |acc, x| acc + *x);
+    let sum3 = arr.iter().fold(0, |acc, &x| acc + x);
+    let sum4 = arr.into_iter().fold(0, |acc, x| acc + x);
+    assert_eq!(suml, 6);
+    assert_eq!(sum2, 6);
+    assert_eq!(sum3, 6);
+    assert_eq!(sum4, 6);
+  }
 }
