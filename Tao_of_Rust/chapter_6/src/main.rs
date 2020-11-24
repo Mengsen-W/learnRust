@@ -37,6 +37,9 @@ fn main() {
   {
     advance_life_time();
   }
+  {
+    iterator();
+  }
 }
 
 fn r#match(needle: &str, haystack: &str) -> bool {
@@ -413,7 +416,6 @@ fn iterator() {
     let mut counter = Counter { count: 0 };
     assert_eq!(Some(1), counter.next());
     assert_eq!(Some(2), counter.next());
-    assert_eq!(Some(3), counter.next());
     assert_eq!(None, counter.next());
   }
   {
@@ -467,5 +469,47 @@ fn iterator() {
     assert_eq!(sum2, 6);
     assert_eq!(sum3, 6);
     assert_eq!(sum4, 6);
+  }
+  {
+    use std::iter::FromIterator;
+    #[derive(Debug)]
+    struct MyVec(Vec<i32>);
+    impl MyVec {
+      fn new() -> MyVec {
+        MyVec(Vec::new())
+      }
+
+      fn add(&mut self, elem: i32) {
+        self.0.push(elem);
+      }
+    }
+
+    impl FromIterator<i32> for MyVec {
+      fn from_iter<I: IntoIterator<Item = i32>>(iter: I) -> Self {
+        let mut c = MyVec::new();
+        for i in iter {
+          c.add(i)
+        }
+        c
+      }
+    }
+
+    let iter = (0..5).into_iter();
+    let c = MyVec::from_iter(iter);
+    assert_eq!(c.0, vec![0, 1, 2, 3, 4]);
+    let iter = (0..5).into_iter();
+    let c: MyVec = iter.collect();
+    assert_eq!(c.0, vec![0, 1, 2, 3, 4]);
+    let iter = (0..5).into_iter();
+    let c = iter.collect::<MyVec>();
+    assert_eq!(c.0, vec![0, 1, 2, 3, 4]);
+  }
+  {
+    #[derive(Debug, Clone)]
+    #[must_use = "iterator adaptors are lazy and do nothing unless consumed"]
+    pub struct Step<I> {
+      iter: I,
+      skip: usize,
+    }
   }
 }
