@@ -1,10 +1,10 @@
 /// chapter 7 color
 /// mengsen
 /// 2020-11-25 12:42:36
-use std::str::From;
-use std::convert::FromStr;
-use std::string::String;
+use std::convert::From;
 use std::fmt;
+use std::str::FromStr;
+use std::string::String;
 
 struct ColoredString {
   input: String,
@@ -41,31 +41,37 @@ impl<'a> Colorize for ColoredString {
   }
 
   fn yellow(self) -> ColoredString {
-    self.color(Color::yellow)
+    self.color(Color::Yellow)
   }
 
   fn blue(self) -> ColoredString {
-    self.color(Color::blue)
+    self.color(Color::Blue)
   }
 
   fn color<S: Into<Color>>(self, color: S) -> ColoredString {
-    ColoredString { front_color: Some(color.into(), ..self}
+    ColoredString {
+      front_color: Some(color.into()),
+      ..self
+    }
   }
 
   fn on_red(self) -> ColoredString {
-    self.on_color(Color::red)
+    self.on_color(Color::Red)
   }
 
   fn on_yellow(self) -> ColoredString {
-    self.on_color(Color::yellow)
+    self.on_color(Color::Yellow)
   }
 
   fn on_blue(self) -> ColoredString {
-    self.on_color(Color::blue)
+    self.on_color(Color::Blue)
   }
 
-  fn on_color<S: Into<Color>>(color: S) -> ColoredString {
-    ColoredString {back_color: Some(color.into()),..self}
+  fn on_color<S: Into<Color>>(self, color: S) -> ColoredString {
+    ColoredString {
+      back_color: Some(color.into()),
+      ..self
+    }
   }
 }
 
@@ -75,34 +81,39 @@ impl<'a> Colorize for &'a str {
   }
 
   fn yellow(self) -> ColoredString {
-    self.color(Color::yellow)
+    self.color(Color::Yellow)
   }
 
   fn blue(self) -> ColoredString {
-    self.color(Color::blue)
+    self.color(Color::Blue)
   }
 
   fn color<S: Into<Color>>(self, color: S) -> ColoredString {
-    ColoredString { front_color: Some(color.into(), input: String::from(self), ..ColoredString::default() }
+    ColoredString {
+      front_color: Some(color.into()),
+      input: String::from(self),
+      ..ColoredString::default()
+    }
   }
 
   fn on_red(self) -> ColoredString {
-    self.on_color(Color::red)
+    self.on_color(Color::Red)
   }
 
   fn on_yellow(self) -> ColoredString {
-    self.on_color(Color::yellow)
+    self.on_color(Color::Yellow)
   }
 
   fn on_blue(self) -> ColoredString {
-    self.on_color(Color::blue)
+    self.on_color(Color::Blue)
   }
 
-  fn on_color<S: Into<Color>>(color: S) -> ColoredString {
+  fn on_color<S: Into<Color>>(self, color: S) -> ColoredString {
     ColoredString {
       front_color: Some(color.into()),
-    input: String::from(self),
-  ..ColoredString::default()}
+      input: String::from(self),
+      ..ColoredString::default()
+    }
   }
 }
 
@@ -111,17 +122,22 @@ impl ColoredString {
     let mut res = String::from("\x1b[");
     let mut has_wrote = false;
     if let Some(ref back_color) = self.back_color {
-      if has_wrote { res.push(';');}
+      if has_wrote {
+        res.push(';');
+      }
       res.push_str(back_color.to_back_str());
       has_wrote = true;
     }
 
     if let Some(ref front_color) = self.front_color {
-      if has_wrote { res.push(';');}
+      if has_wrote {
+        res.push(';');
+      }
       res.push_str(front_color.to_front_str());
     }
-    res.push("m");
+    res.push('m');
     res
+  }
 }
 
 impl fmt::Display for ColoredString {
@@ -161,23 +177,23 @@ impl Color {
 impl<'a> From<&'a str> for Color {
   fn from(s: &str) -> Self {
     // parse need FromStr
-    src.parse().unwrap_or(Color::Red);
+    s.parse().unwrap_or(Color::Red)
   }
 }
 
 impl From<String> for Color {
   fn from(src: String) -> Self {
-    src.parse().unwrap_or(Color::Red);
+    src.parse().unwrap_or(Color::Red)
   }
 }
 
 impl FromStr for Color {
-  type Err = {};
-  fn from_str() -> Result<Self, Self::Err>{
-    let src = sec.to_lowercase();
+  type Err = ();
+  fn from_str(src: &str) -> Result<Self, Self::Err> {
+    let src = src.to_lowercase();
     match src.as_ref() {
       "red" => Ok(Color::Red),
-      "yellow" => Ok(Color::yellow),
+      "yellow" => Ok(Color::Yellow),
       "blue" => Ok(Color::Blue),
       _ => Err(()),
     }
