@@ -414,4 +414,79 @@ fn leaning_vec() {
   vec.resize(slice.len(), 0);
   vec.clone_from_slice(&slice);
   assert_eq!(vec, slice);
+
+  let mut vec = Vec::with_capacity(10);
+  for i in 0..10 {
+    vec.push(i);
+  }
+  vec.truncate(0);
+  assert_eq!(10, vec.capacity());
+  for i in 0..10 {
+    vec.push(i);
+  }
+  vec.clear();
+  assert_eq!(10, vec.capacity());
+  vec.shrink_to_fit();
+  assert_eq!(0, vec.capacity());
+  for i in 0..10 {
+    vec.push(i);
+    assert!(vec.capacity() > 0);
+  }
+
+  struct Foo;
+  let mut vec = Vec::new();
+  vec.push(Foo);
+  // use max to mean 0
+  assert_eq!(vec.capacity(), std::usize::MAX);
+
+  let vec = [10, 40, 30];
+  assert!(vec.contains(&30));
+  assert!(!vec.contains(&50));
+  assert!(vec.starts_with(&[10]));
+  assert!(vec.starts_with(&[10, 40]));
+  assert!(vec.ends_with(&[30]));
+  assert!(vec.ends_with(&[40, 30]));
+  assert!(vec.ends_with(&[]));
+  let v: &[u8] = &[];
+  assert!(v.starts_with(&[]));
+  assert!(v.ends_with(&[]));
+
+  let s = [0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55];
+  assert_eq!(s.binary_search(&13), Ok(9));
+  assert_eq!(s.binary_search(&4), Err(7));
+  let r = s.binary_search(&1);
+  assert!(match r {
+    Ok(4) => true,
+    _ => false,
+  });
+  let seek = 13;
+  assert_eq!(s.binary_search_by(|probe| probe.cmp(&seek)), Ok(9));
+  let s = [
+    (0, 0),
+    (2, 1),
+    (4, 1),
+    (5, 1),
+    (3, 1),
+    (1, 2),
+    (2, 3),
+    (4, 5),
+    (5, 8),
+    (3, 13),
+    (1, 21),
+    (2, 34),
+    (4, 55),
+  ];
+  assert_eq!(s.binary_search_by_key(&13, |&(a, b)| b), Ok(9));
+
+  let mut v = [-5i32, 4, 1, -3, 2];
+  v.sort();
+  v.sort_unstable();
+  assert!(v == [-5, -3, 1, 2, 4]);
+  v.sort_by(|a, b| a.cmp(b));
+  v.sort_unstable_by(|a, b| a.cmp(b));
+  assert!(v == [-5, -3, 1, 2, 4]);
+  v.sort_by(|a, b| b.cmp(a));
+  assert!(v == [4, 2, 1, -3, -5]);
+  v.sort_by_key(|k| k.abs());
+  assert!(v == [1, 2, -3, 4, -5]);
 }
