@@ -9,6 +9,9 @@ fn main() {
   {
     leaning_vec();
   }
+  {
+    map_learning();
+  }
 }
 
 fn learning_str() {
@@ -476,7 +479,7 @@ fn leaning_vec() {
     (2, 34),
     (4, 55),
   ];
-  assert_eq!(s.binary_search_by_key(&13, |&(a, b)| b), Ok(9));
+  assert_eq!(s.binary_search_by_key(&13, |&(_a, b)| b), Ok(9));
 
   let mut v = [-5i32, 4, 1, -3, 2];
   v.sort();
@@ -489,4 +492,122 @@ fn leaning_vec() {
   assert!(v == [4, 2, 1, -3, -5]);
   v.sort_by_key(|k| k.abs());
   assert!(v == [1, 2, -3, 4, -5]);
+  {
+    use std::cmp::Ordering;
+    let result = 1.0.partial_cmp(&2.0);
+    assert_eq!(result, Some(Ordering::Less));
+    let result = 1.cmp(&1);
+    assert_eq!(result, Ordering::Equal);
+    let result = "abc".partial_cmp(&"Abc");
+    assert_eq!(result, Some(Ordering::Greater));
+    let mut v: [f32; 5] = [5.0, 4.1, 1.2, 3.4, 2.5];
+    // if a cmp b Less than do not move the order
+    v.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    assert!(v == [1.2, 2.5, 3.4, 4.1, 5.0]);
+    // default b less a so the back less front
+    v.sort_by(|a, b| b.partial_cmp(a).unwrap());
+    assert!(v == [5.0, 4.1, 3.4, 2.5, 1.2]);
+  }
+  {
+    fn pick(arr: [i32; 3]) -> i32 {
+      match arr {
+        [_, _, 3] => return 3,
+        [_a, 2, _c] => return 2,
+        [_, _, _] => return 0,
+      }
+    }
+
+    let arr = [1, 2, 3];
+    assert_eq!(3, pick(arr));
+    let arr = [1, 2, 5];
+    assert_eq!(2, pick(arr));
+    let arr = [1, 3, 5];
+    assert_eq!(0, pick(arr));
+  }
+}
+
+fn map_learning() {
+  use std::collections::HashMap;
+  let mut book_reviews = HashMap::with_capacity(10);
+  book_reviews.insert("Rust book", "good");
+  book_reviews.insert("The Tao of Rust", "deep");
+  for key in book_reviews.keys() {
+    println!("{}", key);
+  }
+  for val in book_reviews.values() {
+    println!("{}", val);
+  }
+  if !book_reviews.contains_key("rust book") {
+    println!("find {} times", book_reviews.len());
+  }
+  book_reviews.remove("Rust Book");
+  let to_find = ["Rust Book", "The Tao of Rust"];
+  for book in &to_find {
+    match book_reviews.get(book) {
+      Some(review) => println!("{}: {}", book, review),
+      None => println!("{} is un-reviewed", book),
+    }
+  }
+  for (book, review) in &book_reviews {
+    println!("{}: \"{}\"", book, review);
+  }
+  assert_eq!(book_reviews["The Tao of Rust"], "deep");
+
+  let mut map: HashMap<&str, u32> = HashMap::new();
+  map.entry("current_year").or_insert(2017);
+  assert_eq!(map["current_year"], 2017);
+  *map.entry("current_year").or_insert(2017) += 10;
+  assert_eq!(map["current_year"], 2027);
+  let last_leap_year = 2016;
+  map
+    .entry("next_leap_year")
+    .or_insert_with(|| last_leap_year + 4);
+  assert_eq!(map["next_leap_year"], 2020);
+  assert_eq!(map.entry("current_year").key(), &"current_year");
+
+  {
+    fn merge_extend<'a>(map1: &mut HashMap<&'a str, &'a str>, map2: HashMap<&'a str, &'a str>) {
+      map1.extend(map2);
+    }
+    fn merge_chain<'a>(
+      map1: HashMap<&'a str, &'a str>,
+      map2: HashMap<&'a str, &'a str>,
+    ) -> HashMap<&'a str, &'a str> {
+      map1.into_iter().chain(map2).collect()
+    }
+    fn merge_by_ref<'a>(map: &mut HashMap<&'a str, &'a str>, map_ref: &HashMap<&'a str, &'a str>) {
+      map.extend(map_ref.into_iter().map(|(k, v)| (k.clone(), v.clone())));
+    }
+
+    let mut book_reviews: HashMap<&str, &str> = HashMap::new();
+    book_reviews.insert("Rust Book", "good");
+    book_reviews.insert("Programming Rust", "nice");
+    book_reviews.insert("The Tao of Rust", "deep");
+    let mut book_reviews_2: HashMap<&str, &str> = HashMap::new();
+    book_reviews_2.insert("Rust in Action", "good");
+    book_reviews_2.insert("Rust Primer", "nice");
+    book_reviews_2.insert("Matering Rust", "deep");
+    // merge_extend(&mut book_reviews, book_reviews_2);
+    // let book = merge_chain(book_reviews, book_reviews_2);
+    merge_by_ref(&mut book_reviews, &book_reviews_2);
+    for key in book_reviews.keys() {
+      println!("{}", key);
+    }
+  }
+
+  use std::hash::Hasher;
+  pub struct FnvHasher(u64);
+  impl Hasher for FnvHasher {
+    fn finish(&self) -> u64 {
+      self.0
+    }
+    fn write(&mut self, bytes: &[u8]) {
+      let FnvHasher(mut hash) = *self;
+      for byte in bytes.iter() {
+        hash = hash ^ (*byte as u64);
+        hash = hash.wrapping_mul(0x100000001b3);
+      }
+      *self = FnvHasher(hash);
+    }
+  }
 }
