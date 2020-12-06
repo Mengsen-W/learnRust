@@ -1,6 +1,5 @@
 #![feature(try_trait)]
 extern crate failure;
-#[macro_use]
 extern crate failure_derive;
 fn main() {
   {
@@ -11,6 +10,9 @@ fn main() {
   }
   {
     learning_panic();
+  }
+  {
+    use_lib_failure();
   }
 }
 
@@ -383,11 +385,9 @@ fn learning_panic() {
   }
 }
 
+#[allow(dead_code)]
 fn use_lib_failure() {
   use failure::{Backtrace, Context, Fail};
-  use std::env;
-  use std::fs::File;
-  use std::io::prelude::*;
 
   #[derive(Debug)]
   pub struct Error {
@@ -402,7 +402,7 @@ fn use_lib_failure() {
   }
 
   impl Fail for Error {
-    fn cause(&self) -> Option<&Fail> {
+    fn cause(&self) -> Option<&dyn Fail> {
       self.inner.cause()
     }
     fn backtrace(&self) -> Option<&Backtrace> {
@@ -432,5 +432,6 @@ fn use_lib_failure() {
     }
   }
 
+  #[allow(non_camel_case_types)]
   type ParseResult<i32> = Result<i32, Error>;
 }
