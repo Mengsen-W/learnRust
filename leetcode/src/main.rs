@@ -11,20 +11,11 @@ pub fn find_min_arrow_shots(mut points: Vec<Vec<i32>>) -> i32 {
         let left = i[0];
         let right = i[1];
 
-        if num.is_empty()
-            || Some(&left)
-                > match num.last() {
-                    Some(last) => last.last(),
-                    None => break,
-                }
-        {
+        if num.is_empty() || left > *num.last().and_then(|v| v.last()).unwrap() {
             num.push(vec![left, right]);
         } else {
-            if let Some(last) = num.last_mut() {
-                if let Some(val) = last.last_mut() {
-                    *val = cmp::min(*val, right);
-                }
-            }
+            let mut val = num.last().and_then(|v| v.last()).unwrap();
+            val = cmp::min(&right, val);
         }
     }
 

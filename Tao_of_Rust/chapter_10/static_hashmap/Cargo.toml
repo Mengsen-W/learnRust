@@ -1,11 +1,10 @@
 [package]
-name = "chapter_10"
+name = "static_hashmap"
 version = "0.1.0"
-authors = ["mengsen <mengsen_wang@163.com>"]
-edition = "2018"
+authors = ["Mengsen <mengsen_wang@163.com>"]
+edition = "2015"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-regex="1"
 lazy_static="1.4.0"
