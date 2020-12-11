@@ -1,5 +1,5 @@
 //! This is documentation for the 'csv_challenge' lib create
-//! 
+//!
 //! Usage:
 //! '''
 //!   use csv_challenge::{
@@ -12,7 +12,7 @@ mod err;
 mod opt;
 
 pub use self::opt::Opt;
-pun use self::core::{
-  read::{load_csv, write_str},
+pub use self::core::{
+  read::{load_csv, write_csv},
   write::replace_column,
 };

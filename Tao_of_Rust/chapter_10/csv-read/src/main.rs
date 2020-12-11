@@ -1,4 +1,4 @@
-use csv_challenge::{
+use csv_read::{
   replace_column, Opt, {load_csv, write_csv},
 };
 use std::path::PathBuf;
@@ -32,5 +32,4 @@ fn main() {
       process::exit(1);
     }
   }
-  println!("{:?}", opt);
 }

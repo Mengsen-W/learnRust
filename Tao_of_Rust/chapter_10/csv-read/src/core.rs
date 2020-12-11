@@ -1,8 +1,8 @@
 pub mod read;
 pub mod write;
-use crate::error::Error;
+use crate::err::Error;
 use std::{
-  fs::file,
+  fs::File,
   io::{Read, Write},
   path::PathBuf,
 };

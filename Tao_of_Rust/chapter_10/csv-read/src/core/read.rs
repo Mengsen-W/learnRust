@@ -49,6 +49,6 @@ mod test {
   fn test_valid_load_csv() {
     let filename = PathBuf::from("./input/challenge.csv");
     let csv_data = load_csv(filename);
-    assert_eq!(csv_data.is_ok())
+    assert!(csv_data.is_ok());
   }
 }
