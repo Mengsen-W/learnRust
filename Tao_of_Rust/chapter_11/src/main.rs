@@ -3,6 +3,8 @@ use std::panic;
 use std::thread;
 use std::thread::{current, Builder};
 use std::time::Duration;
+use std::rc::Rc;
+use std::sync::{Arc, Mutex, RwLock, Barrier};
 
 fn main() {
   {
@@ -65,6 +67,53 @@ fn thread_manger() {
     println!("Unparked the thread");
     parked_thread.thread().unpark();
     parked_thread.join().unwrap();
+  }
+  {
+      let s = Arc::new(Mutex::new("Hello".to_string()));
+      let mut v = vec![];
+      for _ in 0..3 {
+          let s_clone = s.clone();
+          let child = thread::spawn(move || {
+              let mut s_clone = s_clone.lock().unwrap();
+              s_clone.push_str(" Rust");
+          });
+          v.push(child);
+      }
+      for child in v {
+          child.join().unwrap();
+      }
+  }
+  {
+    let mutex = Arc::new(Mutex::new(1));
+    let c_mutex = mutex.clone();
+    let _ = thread::spawn(move || {
+      let mut data = c_mutex.lock().unwrap();
+      *data = 2;
+      panic!("oh no");
+    }).join();
+
+    assert_eq!(mutex.is_poisoned(), true);
+    match mutex.lock() {
+      Ok(_) => unreachable!(),
+      Err(p_err) => {
+        let data = p_err.get_ref();
+        println!("recovered: {}", data);
+      }
+    };
+  }
+  {
+    let lock = RwLock::new(5);
+    {
+      let r1 = lock.read().unwrap();
+      let r2 = lock.read().unwrap();
+      assert_eq!(*r1, 5);
+      assert_eq!(*r2, 5);
+    }
+    {
+      let mut w = lock.write().unwrap();
+      *w += 1;
+      assert_eq!(*w, 6);
+    }
   }
   {}
 }
