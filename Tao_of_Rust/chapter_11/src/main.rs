@@ -1,10 +1,10 @@
 use std::cell::RefCell;
 use std::panic;
+use std::rc::Rc;
+use std::sync::{Arc, Barrier, Condvar, Mutex, RwLock};
 use std::thread;
 use std::thread::{current, Builder};
 use std::time::Duration;
-use std::rc::Rc;
-use std::sync::{Arc, Mutex, RwLock, Barrier};
 
 fn main() {
   {
@@ -69,19 +69,19 @@ fn thread_manger() {
     parked_thread.join().unwrap();
   }
   {
-      let s = Arc::new(Mutex::new("Hello".to_string()));
-      let mut v = vec![];
-      for _ in 0..3 {
-          let s_clone = s.clone();
-          let child = thread::spawn(move || {
-              let mut s_clone = s_clone.lock().unwrap();
-              s_clone.push_str(" Rust");
-          });
-          v.push(child);
-      }
-      for child in v {
-          child.join().unwrap();
-      }
+    let s = Arc::new(Mutex::new("Hello".to_string()));
+    let mut v = vec![];
+    for _ in 0..3 {
+      let s_clone = s.clone();
+      let child = thread::spawn(move || {
+        let mut s_clone = s_clone.lock().unwrap();
+        s_clone.push_str(" Rust");
+      });
+      v.push(child);
+    }
+    for child in v {
+      child.join().unwrap();
+    }
   }
   {
     let mutex = Arc::new(Mutex::new(1));
@@ -90,7 +90,8 @@ fn thread_manger() {
       let mut data = c_mutex.lock().unwrap();
       *data = 2;
       panic!("oh no");
-    }).join();
+    })
+    .join();
 
     assert_eq!(mutex.is_poisoned(), true);
     match mutex.lock() {
@@ -115,5 +116,36 @@ fn thread_manger() {
       assert_eq!(*w, 6);
     }
   }
-  {}
+  {
+    let mut handles = Vec::with_capacity(5);
+    let barrier = Arc::new(Barrier::new(5));
+    for _ in 0..5 {
+      let c = barrier.clone();
+      handles.push(thread::spawn(move || {
+        println!("before wait");
+        c.wait();
+        println!("after wait");
+      }));
+    }
+    for handle in handles {
+      handle.join().unwrap();
+    }
+  }
+  {
+    let pair = Arc::new((Mutex::new(false), Condvar::new()));
+    let pair_clone = pair.clone();
+    thread::spawn(move || {
+      let &(ref lock, ref cvar) = &*pair_clone;
+      let mut started = lock.lock().unwrap();
+      *started = true;
+      cvar.notify_one();
+    });
+    let &(ref lock, ref cvar) = &*pair;
+    let mut started = lock.lock().unwrap();
+    while !*started {
+      println!("{}", started); // false
+      started = cvar.wait(started).unwrap();
+      println!("{}", started); // true
+    }
+  }
 }
