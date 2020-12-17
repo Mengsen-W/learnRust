@@ -1,7 +1,11 @@
 use std::cell::RefCell;
 use std::panic;
 use std::rc::Rc;
-use std::sync::{mpsc::{channel, sync_channel} ,Arc, Barrier, Condvar, Mutex, RwLock, atomic::{AtomicUsize, Ordering}};
+use std::sync::{
+  atomic::{AtomicUsize, Ordering},
+  mpsc::{channel, sync_channel},
+  Arc, Barrier, Condvar, Mutex, RwLock,
+};
 use std::thread;
 use std::thread::{current, Builder};
 use std::time::Duration;
@@ -154,20 +158,24 @@ fn thread_manger() {
     let thread = thread::spawn(move || spinlock_clone.store(0, Ordering::SeqCst));
 
     while spinlock.load(Ordering::SeqCst) != 0 {}
-    if let Err(panic) = thread.join(){
+    if let Err(panic) = thread.join() {
       println!("Thread had an error: {:?}", panic);
     }
   }
   {
     let (tx, rx) = channel();
-    thread::spawn(move || {tx.send(10).unwrap();});
+    thread::spawn(move || {
+      tx.send(10).unwrap();
+    });
     assert_eq!(rx.recv().unwrap(), 10);
   }
   {
     let (tx, rx) = channel();
     for _ in 0..10 {
       let tx = tx.clone();
-      thread::spawn(move || {tx.send(1).unwrap();});
+      thread::spawn(move || {
+        tx.send(1).unwrap();
+      });
     }
     for _ in 0..10 {
       let j = rx.recv().unwrap();
@@ -177,10 +185,9 @@ fn thread_manger() {
   {
     let (tx, rx) = sync_channel(1);
     tx.send(1).unwrap();
-    for _ in 0..10 {
-      let tx = tx.clone();
-      thread::spawn(move || {tx.send(2).unwrap();});
-    }
+    thread::spawn(move || {
+      tx.send(2).unwrap();
+    });
     assert_eq!(rx.recv().unwrap(), 1);
     assert_eq!(rx.recv().unwrap(), 2);
   }
