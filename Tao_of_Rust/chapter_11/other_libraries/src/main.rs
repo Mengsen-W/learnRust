@@ -3,7 +3,6 @@ use rayon::prelude::*;
 
 extern crate crossbeam;
 use crossbeam::thread::scope;
-use crossbeam::channel as channel;
 
 fn rayon_learning() {
     {
@@ -22,11 +21,12 @@ fn rayon_learning() {
     }
     {
         fn fib(n: i32) -> u32 {
-            if n < 2 {return n;}
-            let (a, b) = rayon::join() {
-                || fib(n - 1),
-                || fib(n - 2)
-            };
+            if n < 2 {
+                return n as u32;
+            }
+            let (a, b) = rayon::join(
+                || fib(n - 1), || fib(n - 2)
+            );
             a + b
         }
         let r = fib(32);
@@ -39,15 +39,21 @@ fn leaning_crossbeam() {
         let array = [1, 2, 3];
         scope(|scope| {
             for i in &array {
-                scope.spawn(move || {
+                scope.spawn(move |_| {
                     println!("element: {}", i);
                 });
             }
-        });
+        }).unwrap();
     }
     {}
 }
 
 fn main() {
+    {
+        rayon_learning();
+    }
+    {
+        leaning_crossbeam();
+    }
     println!("Hello, world!");
 }
