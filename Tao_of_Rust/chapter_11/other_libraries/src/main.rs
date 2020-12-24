@@ -1,8 +1,12 @@
+use std::thread;
+
 extern crate rayon;
 use rayon::prelude::*;
 
 extern crate crossbeam;
 use crossbeam::thread::scope;
+use crossbeam::channel as channel;
+use crossbeam::channel::{unbounded, Select};
 
 fn rayon_learning() {
     {
@@ -45,7 +49,48 @@ fn leaning_crossbeam() {
             }
         }).unwrap();
     }
-    {}
+    {
+        let (s, r) = channel::unbounded();
+        crossbeam::scope(|scope| {
+            scope.spawn(|_| {
+                s.send(1);
+                r.recv().unwrap();
+            });
+            scope.spawn(|_| {
+                s.send(2);
+                r.recv().unwrap();
+            })
+        });
+    }
+    {
+        fn fibonacci(
+            fib: channel::Sender<u64>, quit: channel::Receiver<()>
+        ) {
+            let (mut x, mut y) = (0, 1);
+            loop {
+                select!{
+                    send(fib, x) -> {
+                        let tmp = x;
+                        x = y;
+                        y = tmp + y;
+                    };
+                    recv(quit) => {
+                        println!("quit");
+                        return;
+                    };
+                };
+            }
+        }
+        let (fib_s, fib_r) = channel::bounded(0);
+        let (quit_s, quit_r) = channel::bounded(0);
+        thread::spawn(move || {
+            for _ in 0..10 {
+                println!("{}", fib_r.recv().unwrap());
+            }
+            quit_s.send(());
+        });
+        fibonacci(fib_s, quit_r);
+    }
 }
 
 fn main() {

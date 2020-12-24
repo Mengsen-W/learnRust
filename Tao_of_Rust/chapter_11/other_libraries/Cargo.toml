@@ -1,5 +1,5 @@
 [package]
-name = "ray"
+name = "other_libraries"
 version = "0.1.0"
 authors = ["Mengsen <mengsen_wang@163.com>"]
 edition = "2018"
