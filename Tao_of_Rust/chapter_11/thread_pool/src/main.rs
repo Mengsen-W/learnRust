@@ -13,7 +13,7 @@ impl<F: FnOnce()> FnBox for F {
     }
 }
 
-type Thunk<'a> = Box<FnBox + Send + 'a>;
+type Thunk<'a> = Box<dyn FnBox + Send + 'a>;
 
 struct ThreadPoolSharedData {
     name: Option<String>,
@@ -96,7 +96,7 @@ impl Builder {
         let num_threads = self.num_threads.unwrap_or_else(num_cpus::get);
         let shared_data = Arc::new(ThreadPoolSharedData{
             name: self.thread_name,
-            job_reciver: Mutex::new(rx),
+            job_receiver: Mutex::new(rx),
             empty_condvar: Condvar::new(),
             empty_trigger: Mutex::new(()),
             queued_count: AtomicUsize::new(0),
@@ -146,7 +146,7 @@ fn spawn_in_pool(shared_data: Arc<ThreadPoolSharedData>) {
                 Err(..) => break,
             };
 
-            shared_data.queue_count.fetch_sub(1, Ordering::SeqCst);
+            shared_data.queued_count.fetch_sub(1, Ordering::SeqCst);
             shared_data.active_count.fetch_add(1, Ordering::SeqCst);
             job.call_box();
             shared_data.active_count.fetch_sub(1, Ordering::SeqCst);
@@ -174,7 +174,7 @@ impl <'a> Sentinel<'a> {
     }
 }
 
-impl Drop for Sentinel<'a> {
+impl<'a> Drop for Sentinel<'a> {
     fn drop(&mut self) {
         if self.active {
             self.shared_data.active_count.fetch_sub(1, Ordering::SeqCst);

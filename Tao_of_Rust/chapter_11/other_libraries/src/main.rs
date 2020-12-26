@@ -4,9 +4,9 @@ extern crate rayon;
 use rayon::prelude::*;
 
 extern crate crossbeam;
-use crossbeam::thread::scope;
-use crossbeam::channel as channel;
+use crossbeam::channel;
 use crossbeam::channel::{unbounded, Select};
+use crossbeam::thread::scope;
 
 fn rayon_learning() {
     {
@@ -28,9 +28,7 @@ fn rayon_learning() {
             if n < 2 {
                 return n as u32;
             }
-            let (a, b) = rayon::join(
-                || fib(n - 1), || fib(n - 2)
-            );
+            let (a, b) = rayon::join(|| fib(n - 1), || fib(n - 2));
             a + b
         }
         let r = fib(32);
@@ -47,7 +45,8 @@ fn leaning_crossbeam() {
                     println!("element: {}", i);
                 });
             }
-        }).unwrap();
+        })
+        .unwrap();
     }
     {
         let (s, r) = channel::unbounded();
@@ -59,38 +58,38 @@ fn leaning_crossbeam() {
             scope.spawn(|_| {
                 s.send(2);
                 r.recv().unwrap();
-            })
+            });
         });
     }
-    {
-        fn fibonacci(
-            fib: channel::Sender<u64>, quit: channel::Receiver<()>
-        ) {
-            let (mut x, mut y) = (0, 1);
-            loop {
-                select!{
-                    send(fib, x) -> {
-                        let tmp = x;
-                        x = y;
-                        y = tmp + y;
-                    };
-                    recv(quit) => {
-                        println!("quit");
-                        return;
-                    };
-                };
-            }
-        }
-        let (fib_s, fib_r) = channel::bounded(0);
-        let (quit_s, quit_r) = channel::bounded(0);
-        thread::spawn(move || {
-            for _ in 0..10 {
-                println!("{}", fib_r.recv().unwrap());
-            }
-            quit_s.send(());
-        });
-        fibonacci(fib_s, quit_r);
-    }
+    // {
+    //     fn fibonacci(
+    //         fib: channel::Sender<u64>, quit: channel::Receiver<()>
+    //     ) {
+    //         let (mut x, mut y) = (0, 1);
+    //         loop {
+    //             select!{
+    //                 send(fib, x) => {
+    //                     let tmp = x;
+    //                     x = y;
+    //                     y = tmp + y;
+    //                 }
+    //                 recv(quit) => {
+    //                     println!("quit");
+    //                     return;
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     let (fib_s, fib_r) = channel::unbounded(0);
+    //     let (quit_s, quit_r) = channel::unbounded(0);
+    //     thread::spawn(move || {
+    //         for _ in 0..10 {
+    //             println!("{}", fib_r.recv().unwrap());
+    //         }
+    //         quit_s.send(());
+    //     });
+    //     fibonacci(fib_s, quit_r);
+    // }
 }
 
 fn main() {
