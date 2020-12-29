@@ -61,4 +61,12 @@ fn any_learning() {
         print_if_string(Box::new(my_string));
         print_if_string(Box::new(0i8));
     }
+    {
+        struct UnStatic<'a> { x: &'a i32 }
+        static ANSWER: i32 = 42;
+        let v = UnStatic{ x: &ANSWER };
+        let mut a: &dyn Any;
+        a = &v;
+        assert!(a.is::<UnStatic>());
+    }
 }
