@@ -8,6 +8,9 @@ fn main() {
     {
         any_learning();
     }
+    {
+        macro_learning();
+    }
 }
 
 fn any_learning() {
@@ -68,5 +71,64 @@ fn any_learning() {
         let mut a: &dyn Any;
         a = &v;
         assert!(a.is::<UnStatic>());
+    }
+}
+
+fn macro_learning() {
+    {
+        macro_rules! unless {
+            ($arg:expr, $branch:expr) => (if !$arg { $branch };);
+        }
+        fn cmp(a: i32, b: i32) {
+            unless!(a > b, {
+                println!("{} < {}", a, b);
+            });
+        }
+        let(a, b) = (1, 2);
+        cmp(a, b);
+    }
+    {
+      macro_rules! hashmap {
+        ($($key: expr => $value: expr), * $(,)*) => {
+          {
+            let mut _map = ::std::collections::HashMap::new();
+          $(_map.insert($key, $value);)*
+          _map
+          };
+        }
+      }
+
+      let map = hashmap!{
+        "a" => 1,
+        "b" => 2,
+      };
+      assert_eq!(map["a"], 1);
+    }
+
+    {
+      // macro_rules! unit {
+      //   ($($x:tt)*) => (());
+      // }
+      // macro_rules! count {
+      //   ($($key:expr), *) =>(<[()]>::len(&[$(unit!($key)),*]));
+      // }
+      macro_rules! hashmap {
+        (@unit $($x:tt)*) => (());
+        (@count $($rest:expr), *) =>
+          (<[()]>::len(&[$(hashmap!(@unit! $rest)),*]));
+        ($($key: expr => $value: expr), * $(,)*) => {
+          {
+            let _cap = hashmap!(@count $($key),*);
+            let mut _map = ::std::collections::HashMap::with_capacity(_cap);
+          $(_map.insert($key, $value);)*
+          _map
+          };
+        }
+      }
+      let map = hashmap!{
+        "a" => 1,
+        "b" => 2,
+      };
+      assert_eq!(map["a"], 1);
     }
 }
