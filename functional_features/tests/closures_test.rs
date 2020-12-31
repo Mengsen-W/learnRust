@@ -8,5 +8,4 @@ fn call_with_different_values() {
     let v2 = c.value(2);
 
     assert_eq!(v2, 2);
-
 }

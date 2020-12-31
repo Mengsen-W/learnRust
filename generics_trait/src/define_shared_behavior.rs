@@ -1,5 +1,5 @@
 #![allow(unused)]
-pub trait Summary{
+pub trait Summary {
     fn summarize(&self) -> String;
     fn summarize_default(&self) -> String {
         String::from("(Read more...)")
@@ -14,7 +14,6 @@ pub struct NewsArticle {
     pub location: String,
     pub author: String,
     pub content: String,
-
 }
 
 pub struct Tweet {
@@ -22,7 +21,6 @@ pub struct Tweet {
     pub content: String,
     pub reply: bool,
     pub retweet: bool,
-
 }
 
 impl Summary for NewsArticle {
@@ -40,42 +38,51 @@ impl Summary for Tweet {
 
 impl<T> Summary for Vec<T> {
     fn summarize(&self) -> String {
-       return format!("vec length = {}", self.len());
-
+        return format!("vec length = {}", self.len());
     }
 }
 
 pub fn notify_1(item: impl Summary) {
     println!("Breaking news! {}", item.summarize());
-
 }
 
 pub fn notifyr_one<T: Summary>(item: T) {
     println!("Breaking news! {}", item.summarize());
-
 }
 
 pub fn notify_2(item1: impl Summary, item2: impl Summary) {
-    println!("Breaking news! {} + {}", item1.summarize(), item2.summarize());
+    println!(
+        "Breaking news! {} + {}",
+        item1.summarize(),
+        item2.summarize()
+    );
 }
 
 pub fn notify_two<T: Summary>(item1: T, item2: T) {
-    println!("Breaking news! {} + {}", item1.summarize(), item2.summarize());
+    println!(
+        "Breaking news! {} + {}",
+        item1.summarize(),
+        item2.summarize()
+    );
 }
 
 pub fn notify_d(item: impl Summary + std::fmt::Display + std::fmt::Debug) {
-    println!("{} + {:?}",item.summarize(), item)
+    println!("{} + {:?}", item.summarize(), item)
 }
 pub fn notify_disp<T: Summary + std::fmt::Display + std::fmt::Debug>(item: T) {
-    println!("{} + {:?}",item.summarize(), item)
+    println!("{} + {:?}", item.summarize(), item)
 }
 
-pub fn some_function<T: std::fmt::Display + Clone, U: Clone + std::fmt::Debug>(_t: T, _u: U) -> i32 {
+pub fn some_function<T: std::fmt::Display + Clone, U: Clone + std::fmt::Debug>(
+    _t: T,
+    _u: U,
+) -> i32 {
     0
 }
 pub fn some_function_where<T, U>(_t: T, _u: U) -> i32
-where T: std::fmt::Display + Clone,
-      U: Clone + std::fmt::Debug
+where
+    T: std::fmt::Display + Clone,
+    U: Clone + std::fmt::Debug,
 {
     0
 }
@@ -87,13 +94,11 @@ pub fn returns_summarizable() -> impl Summary {
         content: String::from("of course, as you probably already know, people"),
         reply: false,
         retweet: false,
-
     }
 
     // errror
     // if return xxx;
     // else return yyy;
-
 }
 
 struct Pair<T> {
@@ -103,10 +108,7 @@ struct Pair<T> {
 
 impl<T> Pair<T> {
     fn new(x: T, y: T) -> Self {
-        Self {
-            x,
-            y,
-        }
+        Self { x, y }
     }
 }
 
@@ -129,12 +131,12 @@ fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
 }
 
 struct ImportantExcerpt<'a> {
-        part: &'a str,
+    part: &'a str,
 }
 
-
 fn longest_with_an_announcement<'a, T>(x: &'a str, y: &'a str, ann: &'a T) -> &'a str
-where T: std::fmt::Display
+where
+    T: std::fmt::Display,
 {
     println!("Announcement! {}", ann);
     if x.len() > y.len() {

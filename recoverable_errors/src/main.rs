@@ -1,6 +1,6 @@
-use std::fs::File;
 use std::error::Error;
 use std::fs;
+use std::fs::File;
 use std::io;
 use std::io::ErrorKind;
 use std::io::Read;
@@ -18,11 +18,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     //     Ok(file) => file,
     //     Err(error) => panic!("Problem creating thre file: {:?}", error),
     // };
-    
+
     let _f = File::open("hello.txt")?;
 
     Ok(())
-
 }
 
 #[allow(dead_code)]
@@ -35,12 +34,9 @@ fn result() {
             ErrorKind::NotFound => match File::create("hello.txt") {
                 Ok(fc) => fc,
                 Err(e) => panic!("Problem creating the file: {:?}", e),
-
             },
             other_error => panic!("Problem opening the file: {:?}", other_error),
-
         },
-
     };
 }
 
@@ -57,7 +53,6 @@ fn read_username_from_file() -> Result<String, io::Error> {
     let mut _f = match _f {
         Ok(file) => file,
         Err(e) => return Err(e),
-
     };
 
     let mut _s = String::new();
@@ -69,7 +64,6 @@ fn read_username_from_file() -> Result<String, io::Error> {
     // };
     _f.read_to_string(&mut _s)?;
     Ok(_s)
-
 }
 
 #[allow(dead_code)]
@@ -83,6 +77,5 @@ fn read_username_from_file2() -> Result<String, io::Error> {
 
 #[allow(dead_code)]
 fn read_username_from_file3() -> Result<String, io::Error> {
-        fs::read_to_string("hello.txt")
-            
+    fs::read_to_string("hello.txt")
 }

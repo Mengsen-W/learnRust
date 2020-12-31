@@ -1,7 +1,7 @@
-use std::io::prelude::*;
-use std::net::TcpStream;
-use std::net::TcpListener;
 use std::fs;
+use std::io::prelude::*;
+use std::net::TcpListener;
+use std::net::TcpStream;
 
 fn main() {
     let listener = TcpListener::bind("172.18.159.110:80").unwrap();
@@ -22,10 +22,8 @@ fn handle_connection(mut stream: TcpStream) {
 
     let (status_line, filename) = if buffer.starts_with(get) {
         ("HTTP/1.1 200 OK\r\n\r\n", "hello.html")
-
     } else {
         ("HTTP/1.1 404 NOT FOUND\r\n\r\n", "404.html")
-
     };
 
     let contents = fs::read_to_string(filename).unwrap();

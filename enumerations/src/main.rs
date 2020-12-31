@@ -8,7 +8,7 @@ enum IpAddrKind {
 
 enum Message {
     Quit,
-    Move { x: i32, y: i32  },
+    Move { x: i32, y: i32 },
     Write(String),
     ChangeColor(i32, i32, i32),
 }
@@ -22,7 +22,6 @@ struct QuitMessage; // 类单元结构体
 struct MoveMessage {
     x: i32,
     y: i32,
-
 }
 
 struct WriteMessage(String); // 元组结构体
@@ -38,7 +37,7 @@ enum UsState {
     Alabama,
     Alaska,
     // --snip--
-    // 
+    //
 }
 
 enum Coin {
@@ -46,7 +45,6 @@ enum Coin {
     Nickel,
     Dime,
     Quarter(UsState),
-
 }
 
 fn value_in_cents(coin: Coin) -> u8 {
@@ -54,22 +52,20 @@ fn value_in_cents(coin: Coin) -> u8 {
         Coin::Penny => {
             println!("Lucky penny!");
             1
-        },
+        }
         Coin::Nickel => {
             println!("Lucky Nickel");
             5
-        },
+        }
         Coin::Dime => {
             println!("Lucky Dime");
             10
-        },
+        }
         Coin::Quarter(state) => {
             println!("Lucky Quarter {:?}", state);
             25
-        },
-
+        }
     }
-
 }
 
 fn plus_one(x: Option<i32>) -> Option<i32> {
@@ -87,14 +83,13 @@ fn main() {
         5 => println!("five"),
         7 => println!("seven"),
         _ => (),
-
     }
     if_let();
 
     let a;
     a = 0;
     // a = 1;
-    println!("{}",a);
+    println!("{}", a);
     println!("Hello, world!");
     define_enum();
 
@@ -112,7 +107,7 @@ fn main() {
 fn define_enum() {
     let _four = IpAddrKind::V4;
     let _six = IpAddrKind::V6;
-    
+
     // let home = IpAddr {
     //     kind: IpAddrKind::V4,
     //     address: String::from("127.0.0.1"),
@@ -122,7 +117,7 @@ fn define_enum() {
     //     kind: IpAddrKind::V6,
     //     address: String::from("::1"),
     // };
-    
+
     let _home = IpAddrKind::V4(String::from("127.0.0.1"));
     let _loopback = IpAddrKind::V6(String::from("::1"));
     route(_home);
@@ -131,18 +126,16 @@ fn define_enum() {
     m.call();
 }
 
-fn route(ip_type: IpAddrKind) { }
+fn route(ip_type: IpAddrKind) {}
 
 fn if_let() {
     let some_u8_value = Some(0u8);
     match some_u8_value {
         Some(3) => println!("three"),
         _ => (),
-
     }
     if let Some(3) = some_u8_value {
         println!("three");
-
     }
     let coin = Coin::Penny;
     let mut count = 0;
@@ -153,11 +146,8 @@ fn if_let() {
     let coin = Coin::Penny;
     if let Coin::Quarter(state) = coin {
         println!("State quarter from {:?}!", state);
-
     } else {
         count += 1;
-
     }
     value_in_cents(Coin::Quarter(UsState::Alaska));
 }
-

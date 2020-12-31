@@ -2,436 +2,440 @@
 extern crate failure;
 extern crate failure_derive;
 fn main() {
-  {
-    options_learning();
-  }
-  {
-    result_learning();
-  }
-  {
-    learning_panic();
-  }
-  {
-    use_lib_failure();
-  }
+    {
+        options_learning();
+    }
+    {
+        result_learning();
+    }
+    {
+        learning_panic();
+    }
+    {
+        use_lib_failure();
+    }
 }
 
 fn options_learning() {
-  fn get_shortest(names: Vec<&str>) -> Option<&str> {
-    if names.len() > 0 {
-      let mut shortest = names[0];
-      for name in names.iter() {
-        if name.len() < shortest.len() {
-          shortest = *name;
+    fn get_shortest(names: Vec<&str>) -> Option<&str> {
+        if names.len() > 0 {
+            let mut shortest = names[0];
+            for name in names.iter() {
+                if name.len() < shortest.len() {
+                    shortest = *name;
+                }
+            }
+            Some(shortest)
+        } else {
+            None
         }
-      }
-      Some(shortest)
-    } else {
-      None
     }
-  }
-  {
-    fn show_shortest(names: Vec<&str>) -> &str {
-      match get_shortest(names) {
-        Some(shortest) => shortest,
-        None => "Not Found",
-      }
-    }
+    {
+        fn show_shortest(names: Vec<&str>) -> &str {
+            match get_shortest(names) {
+                Some(shortest) => shortest,
+                None => "Not Found",
+            }
+        }
 
-    assert_eq!(show_shortest(vec!["Uku", "Felipe"]), "Uku");
-    assert_eq!(show_shortest(Vec::new()), "Not Found");
-  }
-  {
-    fn show_shortest(names: Vec<&str>) -> &str {
-      get_shortest(names).unwrap_or("Not Found")
-      // get_shortest(names).unwrap_or_else( || "Not Found")
-      // this will panicked and out put log
-      // get_shortest(names).expect("Not Found")
+        assert_eq!(show_shortest(vec!["Uku", "Felipe"]), "Uku");
+        assert_eq!(show_shortest(Vec::new()), "Not Found");
     }
+    {
+        fn show_shortest(names: Vec<&str>) -> &str {
+            get_shortest(names).unwrap_or("Not Found")
+            // get_shortest(names).unwrap_or_else( || "Not Found")
+            // this will panicked and out put log
+            // get_shortest(names).expect("Not Found")
+        }
 
-    assert_eq!(show_shortest(vec!["Uku", "Felipe"]), "Uku");
-    assert_eq!(show_shortest(Vec::new()), "Not Found");
-  }
-  {
-    fn get_shortest_length(names: Vec<&str>) -> Option<usize> {
-      match get_shortest(names) {
-        Some(shortest) => Some(shortest.len()),
-        None => None,
-      }
+        assert_eq!(show_shortest(vec!["Uku", "Felipe"]), "Uku");
+        assert_eq!(show_shortest(Vec::new()), "Not Found");
     }
-    assert_eq!(get_shortest_length(vec!["Uku", "Felipe"]), Some(3));
-    assert_eq!(get_shortest_length(Vec::new()), None);
-  }
-  {
-    fn get_shortest_length(vec: Vec<&str>) -> Option<usize> {
-      get_shortest(vec).map(|name| name.len())
+    {
+        fn get_shortest_length(names: Vec<&str>) -> Option<usize> {
+            match get_shortest(names) {
+                Some(shortest) => Some(shortest.len()),
+                None => None,
+            }
+        }
+        assert_eq!(get_shortest_length(vec!["Uku", "Felipe"]), Some(3));
+        assert_eq!(get_shortest_length(Vec::new()), None);
     }
-    assert_eq!(get_shortest_length(vec!["Uku", "Felipe"]), Some(3));
-    assert_eq!(get_shortest_length(Vec::new()), None);
-  }
-  {
-    fn double(value: f64) -> f64 {
-      value * 2.0
+    {
+        fn get_shortest_length(vec: Vec<&str>) -> Option<usize> {
+            get_shortest(vec).map(|name| name.len())
+        }
+        assert_eq!(get_shortest_length(vec!["Uku", "Felipe"]), Some(3));
+        assert_eq!(get_shortest_length(Vec::new()), None);
     }
-    fn square(value: f64) -> f64 {
-      value.powi(2 as i32)
-    }
-    fn inverse(value: f64) -> f64 {
-      value * -1.
-    }
-    fn log(value: f64) -> Option<f64> {
-      match value.log2() {
-        x if x.is_normal() => Some(x),
-        _ => None,
-      }
-    }
-    fn sqrt(value: f64) -> Option<f64> {
-      match value.sqrt() {
-        x if x.is_normal() => Some(x),
-        _ => None,
-      }
-    }
+    {
+        fn double(value: f64) -> f64 {
+            value * 2.0
+        }
+        fn square(value: f64) -> f64 {
+            value.powi(2 as i32)
+        }
+        fn inverse(value: f64) -> f64 {
+            value * -1.
+        }
+        fn log(value: f64) -> Option<f64> {
+            match value.log2() {
+                x if x.is_normal() => Some(x),
+                _ => None,
+            }
+        }
+        fn sqrt(value: f64) -> Option<f64> {
+            match value.sqrt() {
+                x if x.is_normal() => Some(x),
+                _ => None,
+            }
+        }
 
-    let number: f64 = 20.0;
-    let result = Option::from(number)
-      .map(inverse)
-      .map(double)
-      .map(inverse)
-      .and_then(log)
-      .map(square)
-      .and_then(sqrt);
-    match result {
-      Some(x) => assert_eq!(x, 5.321928094887363),
-      None => panic!("error"),
+        let number: f64 = 20.0;
+        let result = Option::from(number)
+            .map(inverse)
+            .map(double)
+            .map(inverse)
+            .and_then(log)
+            .map(square)
+            .and_then(sqrt);
+        match result {
+            Some(x) => assert_eq!(x, 5.321928094887363),
+            None => panic!("error"),
+        }
     }
-  }
 }
 
 fn result_learning() {
-  {
-    let n = "1";
-    assert_eq!(n.parse::<i32>(), Ok(1));
-  }
-  {
-    use std::num::ParseIntError;
-    type ParseResult = Result<i32, ParseIntError>;
-    fn square(number_str: &str) -> ParseResult {
-      number_str.parse::<i32>().map(|n| n.pow(2))
+    {
+        let n = "1";
+        assert_eq!(n.parse::<i32>(), Ok(1));
     }
-
-    let i = "1";
-    assert_eq!(Ok(1), square(&i));
-  }
-  {
-    #[allow(dead_code)]
-    fn sum_text() {
-      use std::env;
-      use std::fs::File;
-      use std::io::prelude::*;
-      let args: Vec<String> = env::args().collect();
-      println!("{:?}", args);
-      let filename = &args[1];
-      let mut f = File::open(filename).unwrap();
-      let mut contents = String::new();
-      f.read_to_string(&mut contents).unwrap();
-      let mut sum = 0;
-      for c in contents.lines() {
-        let n: i32 = c.parse().unwrap();
-        sum += n;
-      }
-      println!("{:?}", sum);
-    }
-  }
-  {
-    use std::env;
-    use std::error::Error;
-    use std::fs::File;
-    use std::io::prelude::*;
-    use std::process;
-    #[allow(non_camel_case_types)]
-    type ParseResult<i32> = Result<i32, Box<dyn Error>>;
-    #[allow(dead_code)]
-    fn sum_text() {
-      let args: Vec<String> = env::args().collect();
-      let filename = &args[1];
-      println!("In file {}", filename);
-      match run(filename) {
-        Ok(n) => println!("{:?}", n),
-        Err(e) => {
-          println!("main error {}", e);
-          process::exit(1);
+    {
+        use std::num::ParseIntError;
+        type ParseResult = Result<i32, ParseIntError>;
+        fn square(number_str: &str) -> ParseResult {
+            number_str.parse::<i32>().map(|n| n.pow(2))
         }
-      }
-    }
 
-    #[allow(dead_code)]
-    #[allow(deprecated)]
-    fn run(filename: &str) -> ParseResult<i32> {
-      File::open(filename)
-        .map_err(|e| e.into())
-        .and_then(|mut f| {
-          let mut contents = String::new();
-          f.read_to_string(&mut contents)
-            .map_err(|e| e.into())
-            .map(|_| contents)
-        })
-        .and_then(|contents| {
-          let mut sum = 0;
-          for c in contents.lines() {
-            match c.parse::<i32>() {
-              Ok(n) => {
+        let i = "1";
+        assert_eq!(Ok(1), square(&i));
+    }
+    {
+        #[allow(dead_code)]
+        fn sum_text() {
+            use std::env;
+            use std::fs::File;
+            use std::io::prelude::*;
+            let args: Vec<String> = env::args().collect();
+            println!("{:?}", args);
+            let filename = &args[1];
+            let mut f = File::open(filename).unwrap();
+            let mut contents = String::new();
+            f.read_to_string(&mut contents).unwrap();
+            let mut sum = 0;
+            for c in contents.lines() {
+                let n: i32 = c.parse().unwrap();
                 sum += n;
-              }
-              Err(err) => {
-                let err: Box<dyn Error> = err.into();
-                println!("error info:{} ,cause: {:?}", err.description(), err.cause());
-              } // Err(err) => {return Err(From::from(err))},
             }
-          }
-          Ok(sum)
-        })
+            println!("{:?}", sum);
+        }
     }
-  }
-  #[allow(dead_code)]
-  {
-    use std::error::Error;
-    use std::fs::File;
-    use std::io::prelude::*;
-    use std::{fmt, io, num};
-    #[allow(non_camel_case_types)]
-    type ParseResult<i32> = std::result::Result<i32, CliError>;
-    #[derive(Debug)]
-    enum CliError {
-      Io(io::Error),
-      Parse(num::ParseIntError),
-    }
+    {
+        use std::env;
+        use std::error::Error;
+        use std::fs::File;
+        use std::io::prelude::*;
+        use std::process;
+        #[allow(non_camel_case_types)]
+        type ParseResult<i32> = Result<i32, Box<dyn Error>>;
+        #[allow(dead_code)]
+        fn sum_text() {
+            let args: Vec<String> = env::args().collect();
+            let filename = &args[1];
+            println!("In file {}", filename);
+            match run(filename) {
+                Ok(n) => println!("{:?}", n),
+                Err(e) => {
+                    println!("main error {}", e);
+                    process::exit(1);
+                }
+            }
+        }
 
-    impl fmt::Display for CliError {
-      fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-          CliError::Io(ref err) => write!(f, "IO error: {}", err),
-          CliError::Parse(ref err) => write!(f, "Parse error: {}", err),
+        #[allow(dead_code)]
+        #[allow(deprecated)]
+        fn run(filename: &str) -> ParseResult<i32> {
+            File::open(filename)
+                .map_err(|e| e.into())
+                .and_then(|mut f| {
+                    let mut contents = String::new();
+                    f.read_to_string(&mut contents)
+                        .map_err(|e| e.into())
+                        .map(|_| contents)
+                })
+                .and_then(|contents| {
+                    let mut sum = 0;
+                    for c in contents.lines() {
+                        match c.parse::<i32>() {
+                            Ok(n) => {
+                                sum += n;
+                            }
+                            Err(err) => {
+                                let err: Box<dyn Error> = err.into();
+                                println!(
+                                    "error info:{} ,cause: {:?}",
+                                    err.description(),
+                                    err.cause()
+                                );
+                            } // Err(err) => {return Err(From::from(err))},
+                        }
+                    }
+                    Ok(sum)
+                })
         }
-      }
     }
-    #[allow(deprecated)]
-    impl Error for CliError {
-      fn description(&self) -> &str {
-        match *self {
-          CliError::Io(ref err) => err.description(),
-          CliError::Parse(ref err) => Error::description(err),
+    #[allow(dead_code)]
+    {
+        use std::error::Error;
+        use std::fs::File;
+        use std::io::prelude::*;
+        use std::{fmt, io, num};
+        #[allow(non_camel_case_types)]
+        type ParseResult<i32> = std::result::Result<i32, CliError>;
+        #[derive(Debug)]
+        enum CliError {
+            Io(io::Error),
+            Parse(num::ParseIntError),
         }
-      }
-      fn cause(&self) -> Option<&dyn Error> {
-        match *self {
-          CliError::Io(ref err) => Some(err),
-          CliError::Parse(ref err) => Some(err),
+
+        impl fmt::Display for CliError {
+            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                match *self {
+                    CliError::Io(ref err) => write!(f, "IO error: {}", err),
+                    CliError::Parse(ref err) => write!(f, "Parse error: {}", err),
+                }
+            }
         }
-      }
+        #[allow(deprecated)]
+        impl Error for CliError {
+            fn description(&self) -> &str {
+                match *self {
+                    CliError::Io(ref err) => err.description(),
+                    CliError::Parse(ref err) => Error::description(err),
+                }
+            }
+            fn cause(&self) -> Option<&dyn Error> {
+                match *self {
+                    CliError::Io(ref err) => Some(err),
+                    CliError::Parse(ref err) => Some(err),
+                }
+            }
+        }
+        #[allow(deprecated)]
+        fn run(filename: &str) -> ParseResult<i32> {
+            File::open(filename)
+                .map_err(CliError::Io)
+                .and_then(|mut f| {
+                    let mut contents = String::new();
+                    f.read_to_string(&mut contents)
+                        .map_err(CliError::Io)
+                        .map(|_| contents)
+                })
+                .and_then(|contents| {
+                    let mut sum = 0;
+                    for c in contents.lines() {
+                        match c.parse::<i32>() {
+                            Ok(n) => {
+                                sum += n;
+                            }
+                            Err(err) => {
+                                let err = CliError::Parse(err);
+                                println!(
+                                    "Error info: {} \n Cause by {:?}",
+                                    err.description(),
+                                    err.cause()
+                                );
+                            } // Err(err) => {return Err(CliError::Parse(err));}
+                        }
+                    }
+                    Ok(sum)
+                })
+        }
     }
-    #[allow(deprecated)]
-    fn run(filename: &str) -> ParseResult<i32> {
-      File::open(filename)
-        .map_err(CliError::Io)
-        .and_then(|mut f| {
-          let mut contents = String::new();
-          f.read_to_string(&mut contents)
-            .map_err(CliError::Io)
-            .map(|_| contents)
-        })
-        .and_then(|contents| {
-          let mut sum = 0;
-          for c in contents.lines() {
-            match c.parse::<i32>() {
-              Ok(n) => {
+    #[allow(dead_code)]
+    {
+        use std::option::NoneError;
+        use std::{error::Error, fmt, io, num};
+        #[allow(non_camel_case_types)]
+        type ParseResult<i32> = std::result::Result<i32, CliError>;
+        #[derive(Debug)]
+        enum CliError {
+            Io(io::Error),
+            Parse(num::ParseIntError),
+            NoneError(NoneError),
+        }
+
+        impl fmt::Display for CliError {
+            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                match *self {
+                    CliError::Io(ref err) => write!(f, "IO error: {}", err),
+                    CliError::Parse(ref err) => write!(f, "Parse error: {}", err),
+                    CliError::NoneError(ref err) => write!(f, "Command args error: {:?}", err),
+                }
+            }
+        }
+
+        #[allow(deprecated)]
+        impl Error for CliError {
+            fn description(&self) -> &str {
+                match *self {
+                    CliError::Io(ref err) => err.description(),
+                    CliError::Parse(ref err) => Error::description(err),
+                    CliError::NoneError(ref _err) => "NoneError",
+                }
+            }
+            fn cause(&self) -> Option<&dyn Error> {
+                match *self {
+                    CliError::Io(ref err) => Some(err),
+                    CliError::Parse(ref err) => Some(err),
+                    _ => None,
+                }
+            }
+        }
+
+        impl From<io::Error> for CliError {
+            fn from(err: io::Error) -> CliError {
+                CliError::Io(err)
+            }
+        }
+
+        impl From<num::ParseIntError> for CliError {
+            fn from(err: num::ParseIntError) -> CliError {
+                CliError::Parse(err)
+            }
+        }
+
+        impl From<NoneError> for CliError {
+            fn from(err: NoneError) -> CliError {
+                CliError::NoneError(err)
+            }
+        }
+        use std::fs::File;
+        use std::io::Read;
+        fn run(filename: Option<String>) -> ParseResult<i32> {
+            let mut file = File::open(filename?)?;
+            let mut contents = String::new();
+            file.read_to_string(&mut contents)?;
+            let mut sum = 0;
+            for c in contents.lines() {
+                let n: i32 = c.parse::<i32>()?;
                 sum += n;
-              }
-              Err(err) => {
-                let err = CliError::Parse(err);
-                println!(
-                  "Error info: {} \n Cause by {:?}",
-                  err.description(),
-                  err.cause()
-                );
-              } // Err(err) => {return Err(CliError::Parse(err));}
             }
-          }
-          Ok(sum)
-        })
-    }
-  }
-  #[allow(dead_code)]
-  {
-    use std::option::NoneError;
-    use std::{error::Error, fmt, io, num};
-    #[allow(non_camel_case_types)]
-    type ParseResult<i32> = std::result::Result<i32, CliError>;
-    #[derive(Debug)]
-    enum CliError {
-      Io(io::Error),
-      Parse(num::ParseIntError),
-      NoneError(NoneError),
-    }
-
-    impl fmt::Display for CliError {
-      fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-          CliError::Io(ref err) => write!(f, "IO error: {}", err),
-          CliError::Parse(ref err) => write!(f, "Parse error: {}", err),
-          CliError::NoneError(ref err) => write!(f, "Command args error: {:?}", err),
+            Ok(sum)
         }
-      }
-    }
 
-    #[allow(deprecated)]
-    impl Error for CliError {
-      fn description(&self) -> &str {
-        match *self {
-          CliError::Io(ref err) => err.description(),
-          CliError::Parse(ref err) => Error::description(err),
-          CliError::NoneError(ref _err) => "NoneError",
+        use std::env;
+        use std::process;
+        fn sum_text() {
+            let filename = env::args().nth(1);
+            match run(filename) {
+                Ok(n) => {
+                    println!("{:?}", n)
+                }
+                Err(e) => {
+                    println!("main error {:?}", e);
+                    process::exit(1);
+                }
+            }
         }
-      }
-      fn cause(&self) -> Option<&dyn Error> {
-        match *self {
-          CliError::Io(ref err) => Some(err),
-          CliError::Parse(ref err) => Some(err),
-          _ => None,
-        }
-      }
     }
-
-    impl From<io::Error> for CliError {
-      fn from(err: io::Error) -> CliError {
-        CliError::Io(err)
-      }
-    }
-
-    impl From<num::ParseIntError> for CliError {
-      fn from(err: num::ParseIntError) -> CliError {
-        CliError::Parse(err)
-      }
-    }
-
-    impl From<NoneError> for CliError {
-      fn from(err: NoneError) -> CliError {
-        CliError::NoneError(err)
-      }
-    }
-    use std::fs::File;
-    use std::io::Read;
-    fn run(filename: Option<String>) -> ParseResult<i32> {
-      let mut file = File::open(filename?)?;
-      let mut contents = String::new();
-      file.read_to_string(&mut contents)?;
-      let mut sum = 0;
-      for c in contents.lines() {
-        let n: i32 = c.parse::<i32>()?;
-        sum += n;
-      }
-      Ok(sum)
-    }
-
-    use std::env;
-    use std::process;
-    fn sum_text() {
-      let filename = env::args().nth(1);
-      match run(filename) {
-        Ok(n) => {
-          println!("{:?}", n)
-        }
-        Err(e) => {
-          println!("main error {:?}", e);
-          process::exit(1);
-        }
-      }
-    }
-  }
 }
 
 fn learning_panic() {
-  {
-    use std::panic;
-    fn sum(a: i32, b: i32) -> i32 {
-      a + b
+    {
+        use std::panic;
+        fn sum(a: i32, b: i32) -> i32 {
+            a + b
+        }
+        let result = panic::catch_unwind(|| println!("hello!"));
+        assert!(result.is_ok());
+        let result = panic::catch_unwind(|| panic!("oh no"));
+        assert!(result.is_err());
+        println!("{}", sum(1, 2));
     }
-    let result = panic::catch_unwind(|| println!("hello!"));
-    assert!(result.is_ok());
-    let result = panic::catch_unwind(|| panic!("oh no"));
-    assert!(result.is_err());
-    println!("{}", sum(1, 2));
-  }
-  {
-    use std::panic;
-    fn sum(a: i32, b: i32) -> i32 {
-      a + b
+    {
+        use std::panic;
+        fn sum(a: i32, b: i32) -> i32 {
+            a + b
+        }
+        let result = panic::catch_unwind(|| println! {"hello"});
+        assert!(result.is_ok());
+        panic::set_hook(Box::new(|panic_info| {
+            if let Some(location) = panic_info.location() {
+                println!(
+                    "panic occurred '{}' at {}",
+                    location.file(),
+                    location.line()
+                );
+            } else {
+                println!("can't get location information...");
+            }
+        }));
+        let result = panic::catch_unwind(|| panic!("oh no"));
+        assert!(result.is_err());
+        println!("{}", sum(1, 2));
     }
-    let result = panic::catch_unwind(|| println! {"hello"});
-    assert!(result.is_ok());
-    panic::set_hook(Box::new(|panic_info| {
-      if let Some(location) = panic_info.location() {
-        println!(
-          "panic occurred '{}' at {}",
-          location.file(),
-          location.line()
-        );
-      } else {
-        println!("can't get location information...");
-      }
-    }));
-    let result = panic::catch_unwind(|| panic!("oh no"));
-    assert!(result.is_err());
-    println!("{}", sum(1, 2));
-  }
 }
 
 #[allow(dead_code)]
 fn use_lib_failure() {
-  use failure::{Backtrace, Context, Fail};
+    use failure::{Backtrace, Context, Fail};
 
-  #[derive(Debug)]
-  pub struct Error {
-    inner: Context<ErrorKind>,
-  }
-  #[derive(Debug, Fail)]
-  pub enum ErrorKind {
-    #[fail(display = "IoError")]
-    Io(#[cause] std::io::Error),
-    #[fail(display = "ParseError")]
-    Parse(#[cause] std::num::ParseIntError),
-  }
-
-  impl Fail for Error {
-    fn cause(&self) -> Option<&dyn Fail> {
-      self.inner.cause()
+    #[derive(Debug)]
+    pub struct Error {
+        inner: Context<ErrorKind>,
     }
-    fn backtrace(&self) -> Option<&Backtrace> {
-      self.inner.backtrace()
+    #[derive(Debug, Fail)]
+    pub enum ErrorKind {
+        #[fail(display = "IoError")]
+        Io(#[cause] std::io::Error),
+        #[fail(display = "ParseError")]
+        Parse(#[cause] std::num::ParseIntError),
     }
-  }
 
-  impl std::fmt::Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-      std::fmt::Display::fmt(&self.inner, f)
+    impl Fail for Error {
+        fn cause(&self) -> Option<&dyn Fail> {
+            self.inner.cause()
+        }
+        fn backtrace(&self) -> Option<&Backtrace> {
+            self.inner.backtrace()
+        }
     }
-  }
 
-  impl From<std::io::Error> for Error {
-    fn from(err: std::io::Error) -> Error {
-      Error {
-        inner: Context::new(ErrorKind::Io(err)),
-      }
+    impl std::fmt::Display for Error {
+        fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+            std::fmt::Display::fmt(&self.inner, f)
+        }
     }
-  }
 
-  impl From<std::num::ParseIntError> for Error {
-    fn from(err: std::num::ParseIntError) -> Error {
-      Error {
-        inner: Context::new(ErrorKind::Parse(err)),
-      }
+    impl From<std::io::Error> for Error {
+        fn from(err: std::io::Error) -> Error {
+            Error {
+                inner: Context::new(ErrorKind::Io(err)),
+            }
+        }
     }
-  }
 
-  #[allow(non_camel_case_types)]
-  type ParseResult<i32> = Result<i32, Error>;
+    impl From<std::num::ParseIntError> for Error {
+        fn from(err: std::num::ParseIntError) -> Error {
+            Error {
+                inner: Context::new(ErrorKind::Parse(err)),
+            }
+        }
+    }
+
+    #[allow(non_camel_case_types)]
+    type ParseResult<i32> = Result<i32, Error>;
 }

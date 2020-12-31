@@ -4,7 +4,7 @@ fn main() {
 
     // Statements are instructions that perform some action and do not return a value
     // Expressions evaluate to a resulting value
-    // statements 
+    // statements
     let x = 3;
     println!("x = {}", x);
 
@@ -19,7 +19,7 @@ fn main() {
         x + 1
     };
     println!("The value of y is: {}", y);
-    
+
     let x = five();
     println!("x = {}", x);
 
@@ -34,7 +34,10 @@ fn main() {
 // Rust doesn’t care where you define your functions
 fn another_function(x: i32, y: i32) {
     // In function signatures, you must declare the type of each parameter
-    println!("another_function first paramter {} and seconde parameter {}", x, y);
+    println!(
+        "another_function first paramter {} and seconde parameter {}",
+        x, y
+    );
 }
 
 fn five() -> i32 {

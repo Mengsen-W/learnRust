@@ -1,8 +1,15 @@
 use std::any::{Any, TypeId};
 #[derive(Debug)]
-enum E { H, He, Li }
-struct S { x: u8, y: u8, z: u16}
-
+enum E {
+    H,
+    He,
+    Li,
+}
+struct S {
+    x: u8,
+    y: u8,
+    z: u16,
+}
 
 fn main() {
     {
@@ -17,7 +24,11 @@ fn any_learning() {
     {
         let v1 = 0xc0ffee_u32;
         let v2 = E::He;
-        let v3 = S{ x: 0xde, y: 0xad, z: 0xbeef };
+        let v3 = S {
+            x: 0xde,
+            y: 0xad,
+            z: 0xbeef,
+        };
         let v4 = "rust";
         let mut a: &dyn Any;
         a = &v1;
@@ -46,11 +57,15 @@ fn any_learning() {
             }
         }
 
-        print_any(& 0xc0ffee_u32);
-        print_any(& E::He);
-        print_any(& S{ x: 0xde, y: 0xad, z: 0xbeef });
-        print_any(& "rust");
-        print_any(& "hoge");
+        print_any(&0xc0ffee_u32);
+        print_any(&E::He);
+        print_any(&S {
+            x: 0xde,
+            y: 0xad,
+            z: 0xbeef,
+        });
+        print_any(&"rust");
+        print_any(&"hoge");
     }
     {
         fn print_if_string(value: Box<dyn Any>) {
@@ -65,9 +80,11 @@ fn any_learning() {
         print_if_string(Box::new(0i8));
     }
     {
-        struct UnStatic<'a> { x: &'a i32 }
+        struct UnStatic<'a> {
+            x: &'a i32,
+        }
         static ANSWER: i32 = 42;
-        let v = UnStatic{ x: &ANSWER };
+        let v = UnStatic { x: &ANSWER };
         let mut a: &dyn Any;
         a = &v;
         assert!(a.is::<UnStatic>());
@@ -77,18 +94,22 @@ fn any_learning() {
 fn macro_learning() {
     {
         macro_rules! unless {
-            ($arg:expr, $branch:expr) => (if !$arg { $branch };);
+            ($arg:expr, $branch:expr) => {
+                if !$arg {
+                    $branch
+                };
+            };
         }
         fn cmp(a: i32, b: i32) {
             unless!(a > b, {
                 println!("{} < {}", a, b);
             });
         }
-        let(a, b) = (1, 2);
+        let (a, b) = (1, 2);
         cmp(a, b);
     }
     {
-      macro_rules! hashmap {
+        macro_rules! hashmap {
         ($($key: expr => $value: expr), * $(,)*) => {
           {
             let mut _map = ::std::collections::HashMap::new();
@@ -98,21 +119,21 @@ fn macro_learning() {
         }
       }
 
-      let map = hashmap!{
-        "a" => 1,
-        "b" => 2,
-      };
-      assert_eq!(map["a"], 1);
+        let map = hashmap! {
+          "a" => 1,
+          "b" => 2,
+        };
+        assert_eq!(map["a"], 1);
     }
 
     {
-      // macro_rules! unit {
-      //   ($($x:tt)*) => (());
-      // }
-      // macro_rules! count {
-      //   ($($key:expr), *) =>(<[()]>::len(&[$(unit!($key)),*]));
-      // }
-      macro_rules! hashmap {
+        // macro_rules! unit {
+        //   ($($x:tt)*) => (());
+        // }
+        // macro_rules! count {
+        //   ($($key:expr), *) =>(<[()]>::len(&[$(unit!($key)),*]));
+        // }
+        macro_rules! hashmap {
         (@unit $($x:tt)*) => (());
         (@count $($rest:expr), *) =>
           (<[()]>::len(&[$(hashmap!(@unit! $rest)),*]));
@@ -125,10 +146,10 @@ fn macro_learning() {
           };
         }
       }
-      let map = hashmap!{
-        "a" => 1,
-        "b" => 2,
-      };
-      assert_eq!(map["a"], 1);
+        let map = hashmap! {
+          "a" => 1,
+          "b" => 2,
+        };
+        assert_eq!(map["a"], 1);
     }
 }

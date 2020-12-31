@@ -19,7 +19,6 @@ pub fn generate_workout_nonclosures(intensity: u32, random_number: u32) {
             "Next, do {} situps!",
             simulated_expensive_calculation(intensity)
         );
-
     } else {
         if random_number == 3 {
             println!("Take a break today! Remember to stay hydrated!");
@@ -30,7 +29,6 @@ pub fn generate_workout_nonclosures(intensity: u32, random_number: u32) {
             );
         }
     }
-
 }
 
 #[allow(unused)]
@@ -42,39 +40,29 @@ pub fn generate_workout_mutil_calu(intensity: u32, random_number: u32) {
     };
 
     if intensity < 25 {
-        println!(
-            "Today, do {} pushups!",
-            expensive_closure(intensity)
-        );
-        println!(
-            "Next, do {} situps!",
-            expensive_closure(intensity)
-        );
-
+        println!("Today, do {} pushups!", expensive_closure(intensity));
+        println!("Next, do {} situps!", expensive_closure(intensity));
     } else {
         if random_number == 3 {
             println!("Take a break today! Remember to stay hydrated!");
         } else {
-            println!(
-                "Today, run for {} minutes!",
-                expensive_closure(intensity)
-            );
+            println!("Today, run for {} minutes!", expensive_closure(intensity));
         }
     }
-
 }
 
 use std::collections::HashMap;
 pub struct Cacher<T>
-where T: Fn(u32) -> u32
+where
+    T: Fn(u32) -> u32,
 {
     calculation: T,
     value: HashMap<u32, u32>,
-
 }
 
 impl<T> Cacher<T>
-where T: Fn(u32) -> u32
+where
+    T: Fn(u32) -> u32,
 {
     pub fn new(calculation: T) -> Cacher<T> {
         Cacher {
@@ -90,7 +78,7 @@ where T: Fn(u32) -> u32
                 let v = (self.calculation)(arg);
                 self.value.insert(arg, v);
                 v
-            },
+            }
         }
     }
 }
@@ -103,15 +91,8 @@ pub fn generate_workout(intensity: u32, random_number: u32) {
     });
 
     if intensity < 25 {
-        println!(
-            "Today, do {} pushups!",
-            expensive_result.value(intensity)
-        );
-        println!(
-            "Next, do {} situps!",
-            expensive_result.value(intensity)
-        );
-
+        println!("Today, do {} pushups!", expensive_result.value(intensity));
+        println!("Next, do {} situps!", expensive_result.value(intensity));
     } else {
         if random_number == 3 {
             println!("Take a break today! Remember to stay hydrated!");
@@ -123,4 +104,3 @@ pub fn generate_workout(intensity: u32, random_number: u32) {
         }
     }
 }
-

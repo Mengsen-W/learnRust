@@ -23,7 +23,6 @@ fn main() {
     // in debug mode programe compile with error "panic"
     // in release flag compile performs two’s complement wrapping
 
-
     // default float type is f64
     let x = 2.0; //f64
     println!("f64 x = {}", x);
@@ -49,7 +48,7 @@ fn main() {
 
     // expected `bool`, found integer
     // just "true" and "false"
-    let f: bool = false; 
+    let f: bool = false;
     println!("bool f = {}", f);
 
     // char literals are specified with single quotes
@@ -67,7 +66,10 @@ fn main() {
     let five_hundred = tup.0;
     let six_point_four = tup.1;
     let one = tup.2;
-    println!("tup1 = {}, tup2 = {}, tup3 = {}", five_hundred, six_point_four, one);
+    println!(
+        "tup1 = {}, tup2 = {}, tup3 = {}",
+        five_hundred, six_point_four, one
+    );
 
     // every element of an array must have the same type
     let a: [i32; 5] = [1, 2, 3, 4, 5];
@@ -76,10 +78,10 @@ fn main() {
     println!("a[0] = {}", first);
     let second = a[1];
     println!("a[1] = {}", second);
-    
+
     // if you try to access an element of an array
     // index out of bounds: the len is 5 but the index is 10
-    
+
     // When you attempt to access an element using indexing, Rust will check that the index you’ve
     // specified is less than the array length. If the index is greater than or equal to the array
     // length, Rust will panic.

@@ -24,5 +24,4 @@ fn main() {
     // expected `&str`, found `usize`
     // let mut str = "abdc";
     // str = str.len();
-
 }

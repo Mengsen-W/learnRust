@@ -1,6 +1,6 @@
-mod vec;
-mod string;
 mod hash;
+mod string;
+mod vec;
 
 fn main() {
     println!("Hello, world!");

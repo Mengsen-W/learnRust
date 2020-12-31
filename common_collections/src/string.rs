@@ -7,13 +7,12 @@ pub fn string_define() {
 
     // 该方法也可直接用于字符串字面值：
     let _s = "initial contents".to_string();
-} 
+}
 
 pub fn string_update() {
     let mut s = String::from("foo");
     s.push_str("bar");
     println!("{}", s);
-    
 
     let mut s1 = String::from("foo");
     let s2 = "bar";
@@ -38,7 +37,6 @@ pub fn string_update() {
 
     let s = format!("{}-{}-{}", s1, s2, s3);
     println!("{}", s);
-
 }
 
 pub fn string_index() {
@@ -54,15 +52,13 @@ pub fn string_index() {
 pub fn string_traverse() {
     for c in "नमस्ते".chars() {
         println!("{}", c);
-
     }
     for b in "नमस्ते".bytes() {
         println!("{}", b);
-
     }
 }
 
-pub fn print_hell () {
+pub fn print_hell() {
     let hello = String::from("السلام عليكم");
     println!("{}", hello);
     let hello = String::from("Hello");

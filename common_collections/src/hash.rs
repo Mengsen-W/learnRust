@@ -6,7 +6,7 @@ pub fn hash_define() {
     scores.insert(String::from("Blue"), 10);
     scores.insert(String::from("Yellow"), 50);
 
-    let teams  = vec![String::from("Blue"), String::from("Yellow")];
+    let teams = vec![String::from("Blue"), String::from("Yellow")];
     let initial_scores = vec![10, 50];
 
     let _scores: HashMap<_, _> = teams.iter().zip(initial_scores.iter()).collect();
@@ -35,7 +35,6 @@ pub fn hash_get() {
 }
 
 pub fn hash_traverse() {
-
     let mut scores = HashMap::new();
 
     scores.insert(String::from("Blue"), 10);
@@ -43,8 +42,6 @@ pub fn hash_traverse() {
 
     for (key, value) in &scores {
         println!("{}: {}", key, value);
-
-
     }
 }
 
@@ -69,5 +66,4 @@ pub fn hash_update() {
     }
 
     println!("{:?}", map);
-
 }

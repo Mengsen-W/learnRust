@@ -5,7 +5,7 @@ mod tests {
 
     #[test]
     fn it_works() {
-        assert_eq!(2+2, 4);
+        assert_eq!(2 + 2, 4);
     }
 
     #[test]
@@ -16,20 +16,30 @@ mod tests {
 
     #[test]
     fn small_can_hold_smaller() {
-
-        let larger = Rectangle { width: 8, height: 7  };
-        let smaller = Rectangle { width: 5, height: 1  };
+        let larger = Rectangle {
+            width: 8,
+            height: 7,
+        };
+        let smaller = Rectangle {
+            width: 5,
+            height: 1,
+        };
 
         assert!(!smaller.can_hold(&larger));
     }
 
     #[test]
     fn larger_can_hold_smaller() {
-        let larger = Rectangle { width: 8, height: 7  };
-        let smaller = Rectangle { width: 5, height: 1  };
+        let larger = Rectangle {
+            width: 8,
+            height: 7,
+        };
+        let smaller = Rectangle {
+            width: 5,
+            height: 1,
+        };
 
         assert!(larger.can_hold(&smaller));
-
     }
 
     #[test]
@@ -42,7 +52,8 @@ mod tests {
         let result = greeting("Carol");
         assert!(
             result.contains("Carol"),
-            "Greeting did not contain name, value was `{}`", result
+            "Greeting did not contain name, value was `{}`",
+            result
         );
     }
 
@@ -81,16 +92,19 @@ pub struct Guess {
 impl Guess {
     pub fn new(value: i32) -> Guess {
         if value < 1 {
-            panic!("Guess value must be greater than or equal to 1, got {}.",
-                value);
+            panic!(
+                "Guess value must be greater than or equal to 1, got {}.",
+                value
+            );
         } else if value > 100 {
-            panic!("Guess value must be less than or equal to 100, got {}.",
-                value);
+            panic!(
+                "Guess value must be less than or equal to 100, got {}.",
+                value
+            );
         }
         Guess { value }
     }
 }
-
 
 pub fn add_two(a: i32) -> i32 {
     a + 2
@@ -98,5 +112,4 @@ pub fn add_two(a: i32) -> i32 {
 
 pub fn greeting(name: &str) -> String {
     format!("Hello {}!", name)
-
 }

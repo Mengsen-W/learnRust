@@ -17,8 +17,7 @@ fn if_flow() {
     // }
     if num < 5 {
         println!("condition is true");
-    }
-    else {
+    } else {
         println!("condition is false");
     }
 

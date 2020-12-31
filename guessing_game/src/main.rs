@@ -41,7 +41,7 @@ fn main() {
             Ordering::Equal => {
                 println!("You win!");
                 break;
-            },
+            }
             Ordering::Less => println!("Too small!"),
         }
     }

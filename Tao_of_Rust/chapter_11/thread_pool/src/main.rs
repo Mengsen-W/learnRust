@@ -1,6 +1,6 @@
-use std::sync::mpsc::{channel, Sender, Receiver};
-use std::sync::{Arc, Mutex, Condvar};
 use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::mpsc::{channel, Receiver, Sender};
+use std::sync::{Arc, Condvar, Mutex};
 use std::thread;
 
 trait FnBox {
@@ -29,13 +29,13 @@ struct ThreadPoolSharedData {
 
 impl ThreadPoolSharedData {
     fn has_work(&self) -> bool {
-        self.queued_count.load(Ordering::SeqCst) > 0
-            ||
-            self.active_count.load(Ordering::SeqCst) > 0
+        self.queued_count.load(Ordering::SeqCst) > 0 || self.active_count.load(Ordering::SeqCst) > 0
     }
     fn no_work_notify_all(&self) {
         if !self.has_work() {
-            *self.empty_trigger.lock()
+            *self
+                .empty_trigger
+                .lock()
                 .expect("Unable to notify all joining threads");
             self.empty_condvar.notify_all();
         }
@@ -53,10 +53,14 @@ impl ThreadPool {
     }
 
     pub fn execute<F>(&self, job: F)
-        where F: FnOnce() + Send + 'static {
-            self.shared_data.queued_count.fetch_add(1, Ordering::SeqCst);
-            self.jobs.send(Box::new(job)).expect("unable to send job into queue");
-        }
+    where
+        F: FnOnce() + Send + 'static,
+    {
+        self.shared_data.queued_count.fetch_add(1, Ordering::SeqCst);
+        self.jobs
+            .send(Box::new(job))
+            .expect("unable to send job into queue");
+    }
 
     pub fn join(&self) {
         if self.shared_data.has_work() == false {
@@ -81,7 +85,7 @@ impl Builder {
         Builder {
             num_threads: None,
             thread_name: None,
-            thread_stack_size: None ,
+            thread_stack_size: None,
         }
     }
 
@@ -94,7 +98,7 @@ impl Builder {
     pub fn build(self) -> ThreadPool {
         let (tx, rx) = channel::<Thunk<'static>>();
         let num_threads = self.num_threads.unwrap_or_else(num_cpus::get);
-        let shared_data = Arc::new(ThreadPoolSharedData{
+        let shared_data = Arc::new(ThreadPoolSharedData {
             name: self.thread_name,
             job_receiver: Mutex::new(rx),
             empty_condvar: Condvar::new(),
@@ -125,35 +129,39 @@ fn spawn_in_pool(shared_data: Arc<ThreadPoolSharedData>) {
     if let Some(ref stack_size) = shared_data.stack_size {
         builder = builder.stack_size(stack_size.to_owned());
     }
-    builder.spawn(move || {
-        let sentinel = Sentinel::new(&shared_data);
+    builder
+        .spawn(move || {
+            let sentinel = Sentinel::new(&shared_data);
 
-        loop {
-            let thread_counter_val = shared_data.active_count.load(Ordering::Acquire);
-            let max_thread_count_val = shared_data.max_thread_count.load(Ordering::Relaxed);
-            if thread_counter_val > max_thread_count_val {
-                break;
+            loop {
+                let thread_counter_val = shared_data.active_count.load(Ordering::Acquire);
+                let max_thread_count_val = shared_data.max_thread_count.load(Ordering::Relaxed);
+                if thread_counter_val > max_thread_count_val {
+                    break;
+                }
+
+                let message = {
+                    let lock = shared_data
+                        .job_receiver
+                        .lock()
+                        .expect("unable to lock job_receiver");
+                    lock.recv()
+                };
+
+                let job = match message {
+                    Ok(job) => job,
+                    Err(..) => break,
+                };
+
+                shared_data.queued_count.fetch_sub(1, Ordering::SeqCst);
+                shared_data.active_count.fetch_add(1, Ordering::SeqCst);
+                job.call_box();
+                shared_data.active_count.fetch_sub(1, Ordering::SeqCst);
+                shared_data.no_work_notify_all();
             }
-
-            let message = {
-                let lock = shared_data.job_receiver.lock()
-                    .expect("unable to lock job_receiver");
-                lock.recv()
-            };
-
-            let job = match message {
-                Ok(job) => job,
-                Err(..) => break,
-            };
-
-            shared_data.queued_count.fetch_sub(1, Ordering::SeqCst);
-            shared_data.active_count.fetch_add(1, Ordering::SeqCst);
-            job.call_box();
-            shared_data.active_count.fetch_sub(1, Ordering::SeqCst);
-            shared_data.no_work_notify_all();
-        }
-        sentinel.cancel();
-    }).unwrap();
+            sentinel.cancel();
+        })
+        .unwrap();
 }
 
 struct Sentinel<'a> {
@@ -161,7 +169,7 @@ struct Sentinel<'a> {
     active: bool,
 }
 
-impl <'a> Sentinel<'a> {
+impl<'a> Sentinel<'a> {
     fn new(shared_data: &'a Arc<ThreadPoolSharedData>) -> Sentinel<'a> {
         Sentinel {
             shared_data: shared_data,

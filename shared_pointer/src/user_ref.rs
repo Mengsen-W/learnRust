@@ -1,7 +1,6 @@
 enum List {
     Cons(i32, Rc<List>),
     Nil,
-
 }
 
 use crate::user_ref::List::{Cons, Nil};
@@ -15,8 +14,6 @@ pub fn my_ref() {
     {
         let _c = Cons(4, Rc::clone(&a));
         println!("count after creating c = {}", Rc::strong_count(&a));
-
     }
     println!("count after c goes out of scope = {}", Rc::strong_count(&a));
-
 }

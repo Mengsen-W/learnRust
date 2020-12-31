@@ -2,8 +2,8 @@ use std::env;
 use std::process;
 
 fn main() {
-//    let args: Vec<String> = env::args().collect();
-//    println!("{:?}", args);
+    //    let args: Vec<String> = env::args().collect();
+    //    println!("{:?}", args);
 
     let config = minigrep::Config::new(env::args()).unwrap_or_else(|err| {
         eprintln!("Problem parsing arguments: {}", err);

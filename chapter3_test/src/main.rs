@@ -1,7 +1,5 @@
 fn main() {
-
     loop {
-
         println!("Please input function type:");
         println!("1 = convert temperatures");
         println!("2 = Generate the nth Fibonacci number");
@@ -24,22 +22,18 @@ fn main() {
         if enum_ == 0 {
             println!("see you again");
             return;
-        }
-        else if enum_ == 1 {
+        } else if enum_ == 1 {
             convert_temperatures();
-        }
-        else if enum_ == 2 {
+        } else if enum_ == 2 {
             fibonacci_sequence();
-        }
-        else if enum_ == 3 {
-           let c: bool = christmas_song(5);
-           if c == true {
-               println!("Yes, you gotted");
-           } else {
-               println!("something wrong maybe, come on!");
-           }
-        }
-        else {
+        } else if enum_ == 3 {
+            let c: bool = christmas_song(5);
+            if c == true {
+                println!("Yes, you gotted");
+            } else {
+                println!("something wrong maybe, come on!");
+            }
+        } else {
             println!("input from 0 to 3");
             continue;
         }
@@ -50,7 +44,7 @@ fn convert_temperatures() {
     println!("Please input type");
     println!("1 = C, 2 = F");
 
-    let mut type_= String::new();
+    let mut type_ = String::new();
     std::io::stdin()
         .read_line(&mut type_)
         .expect("Fail to read line");
@@ -64,7 +58,7 @@ fn convert_temperatures() {
 
     if type_ == 1 {
         println!("Please input you temperatures");
-        let mut type_= String::new();
+        let mut type_ = String::new();
         std::io::stdin()
             .read_line(&mut type_)
             .expect("Fail to read line");
@@ -76,10 +70,9 @@ fn convert_temperatures() {
             }
         };
         println!("The result = {}", (type_ * 1.8) + 32.0);
-
     } else if type_ == 2 {
         println!("Please input you temperatures");
-        let mut type_= String::new();
+        let mut type_ = String::new();
         std::io::stdin()
             .read_line(&mut type_)
             .expect("Fail to read line");
@@ -90,14 +83,13 @@ fn convert_temperatures() {
                 return;
             }
         };
-        println!("The result = {}", (type_- 32.0)/1.8);
+        println!("The result = {}", (type_ - 32.0) / 1.8);
     }
-
 }
 
 fn fibonacci_sequence() {
     println!("input number of fibonacci sequence");
-    let mut type_= String::new();
+    let mut type_ = String::new();
     std::io::stdin()
         .read_line(&mut type_)
         .expect("Fail to read line");
@@ -127,7 +119,7 @@ fn fibonacci_sequence() {
     }
 }
 
-fn christmas_song (_x: u32) -> bool {
+fn christmas_song(_x: u32) -> bool {
     for _i in 0.._x {
         println!("The value = 1{}", _i);
     }

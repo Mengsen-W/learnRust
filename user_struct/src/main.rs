@@ -9,7 +9,6 @@ struct User {
 struct Rectangle {
     width: u32,
     height: u32,
-
 }
 
 impl Rectangle {
@@ -20,7 +19,10 @@ impl Rectangle {
         self.width > other.width && self.height > other.height
     }
     fn square(size: u32) -> Rectangle {
-        Rectangle { width: size, height: size  }
+        Rectangle {
+            width: size,
+            height: size,
+        }
     }
 }
 
@@ -37,14 +39,22 @@ struct Point(i32, i32, i32);
 // unit-like structs
 struct unit;
 
-
 fn main() {
-    // We don’t have to specify the fields in the same order 
+    // We don’t have to specify the fields in the same order
     // in which we declared them in the struct.
-    
-    let rect1 = Rectangle { width: 30, height: 50  };
-    let rect2 = Rectangle { width: 10, height: 40  };
-    let rect3 = Rectangle { width: 60, height: 45  };
+
+    let rect1 = Rectangle {
+        width: 30,
+        height: 50,
+    };
+    let rect2 = Rectangle {
+        width: 10,
+        height: 40,
+    };
+    let rect3 = Rectangle {
+        width: 60,
+        height: 45,
+    };
 
     println!("rect1 is {:?}", rect1);
     println!("rect1 is {:#?}", rect1);
@@ -53,12 +63,12 @@ fn main() {
     println!("Can rect1 hold rect3? {}", rect1.can_hold(&rect3));
     println!("Rectangle::square(3) = {:#?}", Rectangle::square(3));
 
-    let mut user1 = User{
+    let mut user1 = User {
         email: String::from("someone@example.com"),
         username: String::from("somebody"),
         active: true,
         sign_in_count: 1,
-    }; 
+    };
 
     // Note that the entire instance must be mutable
     // Rust doesn’t allow us to mark only certain fields as mutable
@@ -72,14 +82,12 @@ fn main() {
         username: String::from("anotherusername567"),
         active: user1.active,
         sign_in_count: user1.sign_in_count,
-
     };
     let _user2 = User {
         email: String::from("another@example.com"),
         username: String::from("anotherusername567"),
         // another same the user1
         ..user1
-
     };
 
     // tuple
@@ -98,6 +106,5 @@ fn build_user(email: String, username: String) -> User {
         username,
         active: true,
         sign_in_count: 1,
-
     }
 }

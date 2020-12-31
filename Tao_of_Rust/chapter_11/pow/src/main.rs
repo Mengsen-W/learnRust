@@ -1,9 +1,9 @@
-use itertools::Itertools;
 use crypto::digest::Digest;
 use crypto::sha2::Sha256;
-use std::thread;
-use std::sync::{mpsc, Arc};
+use itertools::Itertools;
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{mpsc, Arc};
+use std::thread;
 
 const BASE: usize = 42;
 const THREADS: usize = 8;
@@ -21,11 +21,7 @@ fn verify(number: usize) -> Option<Solution> {
     }
 }
 
-fn find(
-    start_at: usize,
-    sender: mpsc::Sender<Solution>,
-    is_solution_found: Arc<AtomicBool>
-) {
+fn find(start_at: usize, sender: mpsc::Sender<Solution>, is_solution_found: Arc<AtomicBool>) {
     // 从 start_at 开始无限长，步长是 THREADS
     for number in (start_at..).step(THREADS) {
         if is_solution_found.load(Ordering::Relaxed) {
@@ -39,9 +35,11 @@ fn find(
     }
 }
 
-
 fn main() {
-    println!("PoW: find a number, SHA256(the number * {}) == \"{}... \" ",BASE, DIFFICULTY);
+    println!(
+        "PoW: find a number, SHA256(the number * {}) == \"{}... \" ",
+        BASE, DIFFICULTY
+    );
     println!("Started {} threads", THREADS);
     println!("Please wait...");
     let is_solution_found = Arc::new(AtomicBool::new(false));
@@ -58,7 +56,7 @@ fn main() {
         Ok(Solution(i, hash)) => {
             println!("Found the solution: ");
             println!("The number is: {},and hash result is: {}", i, hash);
-        },
+        }
         Err(_) => panic!("Worker threads disconnected!"),
     }
 }

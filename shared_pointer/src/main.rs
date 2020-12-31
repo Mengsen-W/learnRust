@@ -1,9 +1,9 @@
+mod reference_cycles;
 mod user_box;
 mod user_deref;
 mod user_drop;
 mod user_ref;
 mod user_refcall;
-mod reference_cycles;
 
 fn main() {
     println!("Hello, world!");
