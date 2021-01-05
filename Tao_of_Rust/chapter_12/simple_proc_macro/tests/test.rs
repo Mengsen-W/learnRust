@@ -15,3 +15,13 @@ fn foo() {}
 fn test_foo() {
     assert_eq!(foo(), "Hello, Rust!");
 }
+
+#![feature(proc_macro_non_items)]
+use simple_proc_macro::hashmap;
+#[test]
+fn test_hashmap () {
+    let hm = hashmap!{"a": 1, "b": 2};
+    assert_eq!(hm["a"], 1);
+    let hm = hashmap!{"a" => 1, "b" => 2, "c" => 3};
+    assert_eq!(hm["d"], 4);
+}

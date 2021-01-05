@@ -9,4 +9,4 @@ edition = "2018"
 [dependencies]
 
 [lib]
-proc_marco = true
+proc-marco = true
