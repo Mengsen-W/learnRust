@@ -287,5 +287,36 @@ fn unsafe_learning() {
             }
         }
     }
-    {}
+    {
+        {
+            use std::fmt;
+            #[dervie(Copy, Clone, Debug)]
+            enum State { InValid, Valid }
+            #[dervie(Debug)]
+            struct Hello<T: fmt::Debug> (&'static str, T, State);
+            impl<T: fmt::Debug> Hello<T> {
+                fn new(name: &'static str, t: T) -> Self {
+                    Hello(name, t, State::Valid)
+                }
+            }
+            impl<T: fmt::Debug> Drop for Hello<T> {
+                fn drop(&mut self) {
+                    println!("drop Hello ({}, {:?}, {:?})", 
+                             self.0,
+                             self.1,
+                             self.2);
+                    self.2 = State::InValid;
+                }
+            }
+
+            struct WrapBox<T> {
+                v: Box<T>,
+            }
+            impl<T> WrapBox<T> {
+                fn new(t: T) -> Self {
+                    WrapBox { v: Box::new(t) }
+                }
+            }
+        }
+    }
 }
