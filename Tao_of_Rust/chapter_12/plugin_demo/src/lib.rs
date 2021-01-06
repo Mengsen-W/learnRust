@@ -1,23 +1,31 @@
 #![feature(plugin_registrar, rustc_private)]
-extern crate syntax;
 extern crate rustc;
 extern crate rustc_plugin;
-use self::syntax::parse::token;
-use self::syntax::tokenstream::TokenStream;
-use self::syntax::ext::base::{ExtCtxt, MacResult, DummyResult, MacEager};
+extern crate syntax;
+use self::rustc_plugin::Registry;
+use self::syntax::ext::base::{DummyResult, ExtCtxt, MacEager, MacResult};
 use self::syntax::ext::build::AstBuilder;
 use self::syntax::ext::quote::rt::Span;
-use self::rustc_plugin::Registry;
+use self::syntax::parse::token;
+use self::syntax::tokenstream::TokenStream;
 
 static ROMAN_NUMERALS: &'static [(&'static str, usize)] = &[
-    ("M", 1000), ("CM", 900), ("D", 500), ("CD", 400),
-    ("C", 100), ("XM", 90), ("L", 50), ("XL", 40),
-    ("X", 10), ("IX", 9), ("V", 5), ("IV", 4),
-    ("I", 1)
+    ("M", 1000),
+    ("CM", 900),
+    ("D", 500),
+    ("CD", 400),
+    ("C", 100),
+    ("XM", 90),
+    ("L", 50),
+    ("XL", 40),
+    ("X", 10),
+    ("IX", 9),
+    ("V", 5),
+    ("IV", 4),
+    ("I", 1),
 ];
 
-fn expand_roman(cx: &mut ExtCtxt, sp: Span, args: &[TokenTree])
-    -> Box<MacResult + 'static>{
+fn expand_roman(cx: &mut ExtCtxt, sp: Span, args: &[TokenTree]) -> Box<MacResult + 'static> {
     let text = match args[0] {
         TokenTree::Token(_, token::Ident(s, _)) => s.to_string(),
         _ => {
@@ -28,9 +36,7 @@ fn expand_roman(cx: &mut ExtCtxt, sp: Span, args: &[TokenTree])
     let mut test = &*test;
     let mut total = 0;
     while !text.is_empty() {
-        match ROMAN_NUMERALS
-            .iter().find(|&&(rn, _)| test.starts_with(rn))
-        {
+        match ROMAN_NUMERALS.iter().find(|&&(rn, _)| test.starts_with(rn)) {
             Some(&(rn, val)) => {
                 total += val;
                 text = &text[rn.len()..];
