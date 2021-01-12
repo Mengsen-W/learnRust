@@ -447,6 +447,119 @@ fn unsafe_learning() {
             }
             f3();
         }
-        {}
+        {
+            use std::mem;
+            struct A;
+            struct B;
+            struct Foo {
+                a: A,
+                b: B,
+            }
+            impl Foo {
+                fn take(mut self) -> (A, B) {
+                    let a = mem::replace(
+                        &mut self.a, unsafe { mem::uninitialized() }
+                    );
+                    let b = mem::replace(
+                        &mut self.b, unsafe { mem::uninitialized() }
+                    );
+                    mem::forget(self);
+                    (a, b)
+                }
+            }
+        }
+        {
+            use std::mem::ManuallDrop;
+            struct Peach;
+            struct Banana;
+            struct Melon;
+            struct FruitBox {
+                peach: ManuallDrop<Peach>,
+                melon: Melon,
+                banana: ManuallDrop<Banana>,
+            }
+            impl Drop for FruitBox {
+                fn drop(&mut self) {
+                    unsafe {
+                        ManuallDrop::drop(&mut self.peach);
+                        ManuallDrop::drop(&mut self.banana);
+                    }
+                }
+            }
+        }
+    }
+    {
+        {
+            use std::ptr::{null, NonNull};
+            let ptr: NonNull<i32> = NonNull::dangling();
+            println!("{:?}", ptr);
+            let mut v = 42;
+            let ptr: Option<NonNull<i32>> = NonNull::new(&mut v);
+            println!("{:?}", ptr);
+            println!("{:?}", ptr.unwrap().as_ptr());
+            println!("{:?}", unsafe{ptr.unwrap().as_mut()});
+            let mut v = 42;
+            let ptr = NonNull::from(&mut v);
+            println!("{:?}", ptr);
+            let null_p: *const i32 = null();
+            let ptr = NonNull::new(null_p as *mut i32);
+            println!("{:?}", ptr);
+        }
+        {
+            use std::mem;
+            use std::ptr::NonNull;
+            struct Foo {
+                a: *mut u64,
+                b: *mut u64,
+            }
+            struct FooUsingNonNull {
+                a: *mut u64,
+                b: NonNull<*mut u64>,
+            }
+            println!("*mut u64: {} bytes", mem::size_of::<*mut u64>());
+            println!("NonNull<*mut u64>: {} bytes", mem::size_of::<NonNull<*mut u64>>());
+            println!("Option<*mut u64>: {} bytes", mem::size_of::<Option<*mut u64>>());
+            println!("Option<NonNull<*mut u64>>: {} bytes", mem::size_of::<Option<NonNull<*mut u64>>>());
+            println!("Option<Foo>: {} bytes", mem::size_of::<Option<Foo>>());
+            println!("Option<FooUsingNonNull>: {} bytes", mem::size_of::<Option<FooUsingNonNull>>());
+
+        }
+        {
+            impl<T: Clone> Vec<T> {
+                fn push_all(&mut self, to_push: &[T]) {
+                    self.reserve(to_push.len());
+                    unsafe {
+                        self.set_len(self.len() + to_push.len());
+                        for (i, x) in to_push.iter().enumerate() {
+                            self.ptr().offset(i as isize).write(x.clone());
+                        }
+                    }
+                }
+            }
+        }
+        {
+            use std::alloc::{GlobalAlloc, System, Layout};
+            struct MyAllocator;
+            unsafe impl GlobalAlloc for MyAllocator {
+                unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
+                    System.alloc(layout)
+                }
+                unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
+                    System.dealloc(ptr, layout)
+                }
+            }
+            #[global_allocator]
+            static GLOBAL: MyAllocator = MyAllocator;
+            let mut v = Vec::new();
+            v.push(1);
+        }
+        {
+            extern crate jemallocator;
+            use jemallocator::Jeamlloc;
+            #[global_allocator]
+            static GLOBAL: Jemalloc = Jemalloc;
+        }
     }
 }
+
+fn interface_foreign() {}
