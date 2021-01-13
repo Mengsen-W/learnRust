@@ -7,8 +7,8 @@ function read_dir() {
        then
            read_dir $1"/"$file
        else
-           echo rustfmt $1"/"$file
-           rustfmt $1"/"$file
+           echo rustfmt $1$file
+           rustfmt $1$file
            cargo clean
        fi
    done
