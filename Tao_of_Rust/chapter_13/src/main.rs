@@ -373,7 +373,7 @@ fn unsafe_learning() {
                         ptr::read(self.v);
                         let p = self.v as *mut _;
                         System.dealloc(p,
-                            Layout::array::<(mem::align_of::<T>()).unwrap());
+                            Layout::array::<T>(mem::align_of::<T>()).unwrap());
                     }
                 }
             }
@@ -436,7 +436,7 @@ fn unsafe_learning() {
                         ptr::read(self.v);
                         let p = self.v as *mut _;
                         System.dealloc(p,
-                            Layout::array::<T>(mem::align_of::<T()).unwrap());
+                            Layout::array::<T>(mem::align_of::<T>()).unwrap());
                     }
                 }
             }
