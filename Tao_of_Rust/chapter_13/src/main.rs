@@ -475,8 +475,12 @@ fn unsafe_learning() {
             }
             impl Foo {
                 fn take(mut self) -> (A, B) {
-                    let a = mem::replace(&mut self.a, unsafe { mem::MaybeUninit::zeroed().assume_init() });
-                    let b = mem::replace(&mut self.b, unsafe { mem::MaybeUninit::zeroed().assume_init() });
+                    let a = mem::replace(&mut self.a, unsafe {
+                        mem::MaybeUninit::zeroed().assume_init()
+                    });
+                    let b = mem::replace(&mut self.b, unsafe {
+                        mem::MaybeUninit::zeroed().assume_init()
+                    });
                     mem::forget(self);
                     (a, b)
                 }
@@ -550,17 +554,17 @@ fn unsafe_learning() {
             );
         }
         {
-//            impl<T: Clone> Vec<T> {
-//                fn push_all(&mut self, to_push: &[T]) {
-//                    self.reserve(to_push.len());
-//                    unsafe {
-//                        self.set_len(self.len() + to_push.len());
-//                        for (i, x) in to_push.iter().enumerate() {
-//                            self.ptr().offset(i as isize).write(x.clone());
-//                        }
-//                    }
-//                }
-//            }
+            //            impl<T: Clone> Vec<T> {
+            //                fn push_all(&mut self, to_push: &[T]) {
+            //                    self.reserve(to_push.len());
+            //                    unsafe {
+            //                        self.set_len(self.len() + to_push.len());
+            //                        for (i, x) in to_push.iter().enumerate() {
+            //                            self.ptr().offset(i as isize).write(x.clone());
+            //                        }
+            //                    }
+            //                }
+            //            }
         }
         {
             use std::alloc::{GlobalAlloc, Layout, System};
@@ -573,8 +577,8 @@ fn unsafe_learning() {
                     System.dealloc(ptr, layout)
                 }
             }
-//            #[global_allocator]
-//            static GLOBAL: MyAllocator = MyAllocator;
+            //            #[global_allocator]
+            //            static GLOBAL: MyAllocator = MyAllocator;
             let mut v = Vec::new();
             v.push(1);
         }
