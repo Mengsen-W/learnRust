@@ -1,5 +1,9 @@
 #![feature(untagged_unions)]
-#![feature(allocator_api, drpock_eyepatch)]
+#![feature(allocator_api)]
+#![feature(dropck_eyepatch)]
+
+extern crate jemallocator;
+use jemallocator::Jemalloc;
 
 fn main() {
     {
@@ -7,6 +11,7 @@ fn main() {
     }
 }
 
+#[allow(unused_variables, unused_assignments, dead_code)]
 fn unsafe_learning() {
     {
         let mut a = "hello";
@@ -291,10 +296,13 @@ fn unsafe_learning() {
     {
         {
             use std::fmt;
-            #[dervie(Copy, Clone, Debug)]
-            enum State { InValid, Valid }
-            #[dervie(Debug)]
-            struct Hello<T: fmt::Debug> (&'static str, T, State);
+            #[derive(Copy, Clone, Debug)]
+            enum State {
+                InValid,
+                Valid,
+            }
+            #[derive(Debug)]
+            struct Hello<T: fmt::Debug>(&'static str, T, State);
             impl<T: fmt::Debug> Hello<T> {
                 fn new(name: &'static str, t: T) -> Self {
                     Hello(name, t, State::Valid)
@@ -302,10 +310,7 @@ fn unsafe_learning() {
             }
             impl<T: fmt::Debug> Drop for Hello<T> {
                 fn drop(&mut self) {
-                    println!("drop Hello ({}, {:?}, {:?})",
-                             self.0,
-                             self.1,
-                             self.2);
+                    println!("drop Hello ({}, {:?}, {:?})", self.0, self.1, self.2);
                     self.2 = State::InValid;
                 }
             }
@@ -329,14 +334,17 @@ fn unsafe_learning() {
             f1();
         }
         {
+            use std::alloc::{GlobalAlloc, Layout, System};
             use std::fmt;
-            use std::alloc::{GlobalAlloc, System, Layout};
-            use std::ptr;
             use std::mem;
-            #[dervie(Copy, Clone, Debug)]
-            enum State { InValid, Valid }
-            #[dervie(Debug)]
-            struct Hello<T: fmt::Debug> (&'static str, T, State);
+            use std::ptr;
+            #[derive(Copy, Clone, Debug)]
+            enum State {
+                InValid,
+                Valid,
+            }
+            #[derive(Debug)]
+            struct Hello<T: fmt::Debug>(&'static str, T, State);
             impl<T: fmt::Debug> Hello<T> {
                 fn new(name: &'static str, t: T) -> Self {
                     Hello(name, t, State::Valid)
@@ -344,10 +352,7 @@ fn unsafe_learning() {
             }
             impl<T: fmt::Debug> Drop for Hello<T> {
                 fn drop(&mut self) {
-                    println!("drop Hello ({}, {:?}, {:?})",
-                             self.0,
-                             self.1,
-                             self.2);
+                    println!("drop Hello ({}, {:?}, {:?})", self.0, self.1, self.2);
                     self.2 = State::InValid;
                 }
             }
@@ -372,9 +377,17 @@ fn unsafe_learning() {
                     unsafe {
                         ptr::read(self.v);
                         let p = self.v as *mut _;
-                        System.dealloc(p,
-                            Layout::array::<T>(mem::align_of::<T>()).unwrap());
+                        System.dealloc(p, Layout::array::<T>(mem::align_of::<T>()).unwrap());
                     }
+                }
+            }
+
+            struct WrapBox<T> {
+                v: Box<T>,
+            }
+            impl<T> WrapBox<T> {
+                fn new(t: T) -> Self {
+                    WrapBox { v: Box::new(t) }
                 }
             }
 
@@ -387,22 +400,25 @@ fn unsafe_learning() {
                 {
                     let (y2, x2);
                     x2 = Hello::new("x2", 13);
-                    y2 = Hello::new(Hello::new("y2", &x2));
+                    y2 = MyBox::new(Hello::new("y2", &x2));
                 }
             }
             f2();
         }
         {
+            use std::alloc::{GlobalAlloc, Layout, System};
             use std::fmt;
-            use std::alloc::{GlobalAlloc, System, Layout};
-            use std::ptr;
-            use std::mem;
             use std::marker::PhantomData;
+            use std::mem;
+            use std::ptr;
 
-            #[dervie(Copy, Clone, Debug)]
-            enum State { InValid, Valid }
-            #[dervie(Debug)]
-            struct Hello<T: fmt::Debug> (&'static str, T, State);
+            #[derive(Copy, Clone, Debug)]
+            enum State {
+                InValid,
+                Valid,
+            }
+            #[derive(Debug)]
+            struct Hello<T: fmt::Debug>(&'static str, T, State);
             impl<T: fmt::Debug> Hello<T> {
                 fn new(name: &'static str, t: T) -> Self {
                     Hello(name, t, State::Valid)
@@ -410,10 +426,7 @@ fn unsafe_learning() {
             }
             impl<T: fmt::Debug> Drop for Hello<T> {
                 fn drop(&mut self) {
-                    println!("drop Hello ({}, {:?}, {:?})",
-                             self.0,
-                             self.1,
-                             self.2);
+                    println!("drop Hello ({}, {:?}, {:?})", self.0, self.1, self.2);
                     self.2 = State::InValid;
                 }
             }
@@ -423,11 +436,16 @@ fn unsafe_learning() {
                 _pd: PhantomData<T>,
             }
             impl<T> MyBox<T> {
-                unsafe {
-                    let p = System.alloc(Layout::array::<T>(1).unwrap());
-                    let p = p as *mut T;
-                    ptr::write(p, t);
-                    MyBox { v: p, _pd: Default::default() }
+                fn new(t: T) -> Self {
+                    unsafe {
+                        let p = System.alloc(Layout::array::<T>(1).unwrap());
+                        let p = p as *mut T;
+                        ptr::write(p, t);
+                        MyBox {
+                            v: p,
+                            _pd: Default::default(),
+                        }
+                    }
                 }
             }
             unsafe impl<#[may_dangle] T> Drop for MyBox<T> {
@@ -435,13 +453,13 @@ fn unsafe_learning() {
                     unsafe {
                         ptr::read(self.v);
                         let p = self.v as *mut _;
-                        System.dealloc(p,
-                            Layout::array::<T>(mem::align_of::<T>()).unwrap());
+                        System.dealloc(p, Layout::array::<T>(mem::align_of::<T>()).unwrap());
                     }
                 }
             }
             fn f3() {
-                let x; let y;
+                let x;
+                let y;
                 x = Hello::new("x", 13);
                 y = MyBox::new(Hello::new("y", &x));
             }
@@ -457,32 +475,28 @@ fn unsafe_learning() {
             }
             impl Foo {
                 fn take(mut self) -> (A, B) {
-                    let a = mem::replace(
-                        &mut self.a, unsafe { mem::uninitialized() }
-                    );
-                    let b = mem::replace(
-                        &mut self.b, unsafe { mem::uninitialized() }
-                    );
+                    let a = mem::replace(&mut self.a, unsafe { mem::MaybeUninit::zeroed().assume_init() });
+                    let b = mem::replace(&mut self.b, unsafe { mem::MaybeUninit::zeroed().assume_init() });
                     mem::forget(self);
                     (a, b)
                 }
             }
         }
         {
-            use std::mem::ManuallDrop;
+            use std::mem::ManuallyDrop;
             struct Peach;
             struct Banana;
             struct Melon;
             struct FruitBox {
-                peach: ManuallDrop<Peach>,
+                peach: ManuallyDrop<Peach>,
                 melon: Melon,
-                banana: ManuallDrop<Banana>,
+                banana: ManuallyDrop<Banana>,
             }
             impl Drop for FruitBox {
                 fn drop(&mut self) {
                     unsafe {
-                        ManuallDrop::drop(&mut self.peach);
-                        ManuallDrop::drop(&mut self.banana);
+                        ManuallyDrop::drop(&mut self.peach);
+                        ManuallyDrop::drop(&mut self.banana);
                     }
                 }
             }
@@ -497,7 +511,7 @@ fn unsafe_learning() {
             let ptr: Option<NonNull<i32>> = NonNull::new(&mut v);
             println!("{:?}", ptr);
             println!("{:?}", ptr.unwrap().as_ptr());
-            println!("{:?}", unsafe{ptr.unwrap().as_mut()});
+            println!("{:?}", unsafe { ptr.unwrap().as_mut() });
             let mut v = 42;
             let ptr = NonNull::from(&mut v);
             println!("{:?}", ptr);
@@ -517,28 +531,39 @@ fn unsafe_learning() {
                 b: NonNull<*mut u64>,
             }
             println!("*mut u64: {} bytes", mem::size_of::<*mut u64>());
-            println!("NonNull<*mut u64>: {} bytes", mem::size_of::<NonNull<*mut u64>>());
-            println!("Option<*mut u64>: {} bytes", mem::size_of::<Option<*mut u64>>());
-            println!("Option<NonNull<*mut u64>>: {} bytes", mem::size_of::<Option<NonNull<*mut u64>>>());
+            println!(
+                "NonNull<*mut u64>: {} bytes",
+                mem::size_of::<NonNull<*mut u64>>()
+            );
+            println!(
+                "Option<*mut u64>: {} bytes",
+                mem::size_of::<Option<*mut u64>>()
+            );
+            println!(
+                "Option<NonNull<*mut u64>>: {} bytes",
+                mem::size_of::<Option<NonNull<*mut u64>>>()
+            );
             println!("Option<Foo>: {} bytes", mem::size_of::<Option<Foo>>());
-            println!("Option<FooUsingNonNull>: {} bytes", mem::size_of::<Option<FooUsingNonNull>>());
-
+            println!(
+                "Option<FooUsingNonNull>: {} bytes",
+                mem::size_of::<Option<FooUsingNonNull>>()
+            );
         }
         {
-            impl<T: Clone> Vec<T> {
-                fn push_all(&mut self, to_push: &[T]) {
-                    self.reserve(to_push.len());
-                    unsafe {
-                        self.set_len(self.len() + to_push.len());
-                        for (i, x) in to_push.iter().enumerate() {
-                            self.ptr().offset(i as isize).write(x.clone());
-                        }
-                    }
-                }
-            }
+//            impl<T: Clone> Vec<T> {
+//                fn push_all(&mut self, to_push: &[T]) {
+//                    self.reserve(to_push.len());
+//                    unsafe {
+//                        self.set_len(self.len() + to_push.len());
+//                        for (i, x) in to_push.iter().enumerate() {
+//                            self.ptr().offset(i as isize).write(x.clone());
+//                        }
+//                    }
+//                }
+//            }
         }
         {
-            use std::alloc::{GlobalAlloc, System, Layout};
+            use std::alloc::{GlobalAlloc, Layout, System};
             struct MyAllocator;
             unsafe impl GlobalAlloc for MyAllocator {
                 unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
@@ -548,14 +573,12 @@ fn unsafe_learning() {
                     System.dealloc(ptr, layout)
                 }
             }
-            #[global_allocator]
-            static GLOBAL: MyAllocator = MyAllocator;
+//            #[global_allocator]
+//            static GLOBAL: MyAllocator = MyAllocator;
             let mut v = Vec::new();
             v.push(1);
         }
         {
-            extern crate jemallocator;
-            use jemallocator::Jeamlloc;
             #[global_allocator]
             static GLOBAL: Jemalloc = Jemalloc;
         }
