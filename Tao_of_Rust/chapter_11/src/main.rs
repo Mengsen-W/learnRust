@@ -1,6 +1,5 @@
 use std::cell::RefCell;
 use std::panic;
-use std::rc::Rc;
 use std::sync::{
     atomic::{AtomicUsize, Ordering},
     mpsc::{channel, sync_channel},

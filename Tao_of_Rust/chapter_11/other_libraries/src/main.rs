@@ -1,11 +1,8 @@
-use std::thread;
-
 extern crate rayon;
 use rayon::prelude::*;
 
 extern crate crossbeam;
 use crossbeam::channel;
-use crossbeam::channel::{unbounded, Select};
 use crossbeam::thread::scope;
 
 fn rayon_learning() {
@@ -48,15 +45,16 @@ fn leaning_crossbeam() {
         })
         .unwrap();
     }
+    #[allow(unused_must_use)]
     {
         let (s, r) = channel::unbounded();
         crossbeam::scope(|scope| {
             scope.spawn(|_| {
-                s.send(1);
+                s.send(1).unwrap();
                 r.recv().unwrap();
             });
             scope.spawn(|_| {
-                s.send(2);
+                s.send(2).unwrap();
                 r.recv().unwrap();
             });
         });

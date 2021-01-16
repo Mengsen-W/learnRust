@@ -45,7 +45,7 @@ fn main() {
             fn up_tp(limit: u64) -> impl Generator<Yield = (), Return = Result<u64, ()>> {
                 move || for x in 0..limit {
                     yield();
-                }
+                };
                 return Ok(limit);
             }
             let limit = 2;
